@@ -1,0 +1,13 @@
+#include "PRISMA_SCREEN.c"
+void delay(int);
+int homescreen(void);
+int Master_homescreen(void);
+int Edit_config_screen(void);
+int System_config_screen(void);
+int Colour_coding_scheme_screen(void);
+int Rate_configuration_screen(void);
+int Pattern_configuration_screen(void);
+int ModeSelect_screen(void);
+int Find_colour_screen(void);
+int Slave_homescreen(void);
+int Slave_homescreen_failed(void);
