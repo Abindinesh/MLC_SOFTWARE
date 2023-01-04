@@ -38,6 +38,7 @@
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "MK64F12.h"
+#include "../PRISMA_INCLUDES/PRISMA_SCREEN.c"
 //#include "fsl_debug_console.h"
 /* TODO: insert other include files here. */
 
@@ -46,21 +47,36 @@
 /*
  * @brief   Application entry point.
  */
-int homescreen();
 int main(void) {
 
     /* Init board hardware. */
     BOARD_InitBootPins();
     BOARD_InitBootClocks();
     BOARD_InitBootPeripherals();
-    char homereturn;
+    char master_home_user_option;
 #ifndef BOARD_INIT_DEBUG_CONSOLE_PERIPHERAL
     /* Init FSL debug console. */
     BOARD_InitDebugConsole();
 #endif
     homescreen();
     while(1) {
-    	Master_homescreen(&homereturn);
+    	while(Master_homescreen(&master_home_user_option)) {
+    		if(master_home_user_option == 's') {
+    			PRINTF("send start signal");
+    		} else if (master_home_user_option == 'd') {
+    			PRINTF("send pause signal");
+    		} else if (master_home_user_option == 'f') {
+    			PRINTF("send pause signal");
+    		} else if (master_home_user_option == 'x') {
+    			PRINTF("send pause signal");
+    		} else if (master_home_user_option == 'v') {
+    			PRINTF("send pause signal");
+    		} else if (master_home_user_option == 'd') {
+    			PRINTF("send pause signal");
+    		} else
+    			continue;
+    	}
+
     }
     return 0;
 }

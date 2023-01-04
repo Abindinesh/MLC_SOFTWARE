@@ -34,12 +34,13 @@ void homescreen(void) {
 	PRINTF("                                                                       \\  /        |     |     | \n\r");
 	PRINTF("                                                                        \\/       __|__ . |_____| \n\r");
 	PRINTF("                                                                                                           ");
-	delay(50);
+	delay(40);
 	PRINTF("\e[1;1H\e[2J");
 }
 
-void Master_homescreen(char *homereturn) {
+int Master_homescreen(char *homereturn) {
 	char useroption;
+	int retvalue;
 	PRINTF("************************************************************** WELCOME TO PRISMA **************************************************************\n\r");
 	PRINTF("                                                     GENERATE YOUR OWN LED COLOUR PATTERN\n\n\r");
 	PRINTF("         **CURRENT CONFIGURATION**\n\n\r");
@@ -65,9 +66,34 @@ void Master_homescreen(char *homereturn) {
 	PRINTF("      X     : MODE\n\r");
 	PRINTF("      V     : FIND COLOUR\n\r");
 	PRINTF("      H     : HELP?\n\r");
-	SCANF("%c",&useroption);
-	PRINTF("your option is %c",useroption);
-
+	do {
+		PRINTF("ENTER YOUR OPTION :");
+		useroption = GETCHAR();
+		PRINTF("%c\n\r",useroption);
+		if ((useroption == 'S') || (useroption == 's')) {
+			*homereturn = 's';
+			retvalue = 0;
+		} else if ((useroption == 'D') || (useroption == 'd')) {
+			*homereturn = 'd';
+			retvalue = 0;
+		} else if ((useroption == 'F') || (useroption == 'f')) {
+			*homereturn = 'f';
+			retvalue = 0;
+		} else if ((useroption == 'X') || (useroption == 'x')) {
+			*homereturn = 'x';
+			retvalue = 0;
+		} else if ((useroption == 'V') || (useroption == 'v')) {
+			*homereturn = 'v';
+			retvalue = 0;
+		} else if ((useroption == 'H') || (useroption == 'h')) {
+			*homereturn = 'h';
+			retvalue = 0;
+		} else {
+			PRINTF("invalid option !!!\r\n");
+			retvalue =1;
+		}
+	} while (retvalue);
+	return 1;
 }
 
 void Edit_config_screen(void) {
