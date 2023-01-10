@@ -38,7 +38,7 @@ void homescreen(void) {
 	PRINTF("\e[1;1H\e[2J");
 }
 
-int Master_homescreen(char *homereturn) {
+int Master_homescreen(void) {
 	char useroption;
 	int retvalue;
 	PRINTF("************************************************************** WELCOME TO PRISMA **************************************************************\n\r");
@@ -66,34 +66,7 @@ int Master_homescreen(char *homereturn) {
 	PRINTF("      X     : MODE\n\r");
 	PRINTF("      V     : FIND COLOUR\n\r");
 	PRINTF("      H     : HELP?\n\r");
-	do {
-		PRINTF("ENTER YOUR OPTION :");
-		useroption = GETCHAR();
-		PRINTF("%c\n\r",useroption);
-		if ((useroption == 'S') || (useroption == 's')) {
-			*homereturn = 's';
-			retvalue = 0;
-		} else if ((useroption == 'D') || (useroption == 'd')) {
-			*homereturn = 'd';
-			retvalue = 0;
-		} else if ((useroption == 'F') || (useroption == 'f')) {
-			*homereturn = 'f';
-			retvalue = 0;
-		} else if ((useroption == 'X') || (useroption == 'x')) {
-			*homereturn = 'x';
-			retvalue = 0;
-		} else if ((useroption == 'V') || (useroption == 'v')) {
-			*homereturn = 'v';
-			retvalue = 0;
-		} else if ((useroption == 'H') || (useroption == 'h')) {
-			*homereturn = 'h';
-			retvalue = 0;
-		} else {
-			PRINTF("invalid option !!!\r\n");
-			retvalue =1;
-		}
-	} while (retvalue);
-	return 1;
+	PRINTF("ENTER YOUR OPTION :");
 }
 
 void Edit_config_screen(void) {

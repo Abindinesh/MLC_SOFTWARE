@@ -1,0 +1,21 @@
+!SESSION 2023-01-05 09:12:19.926 -----------------------------------------------
+eclipse.buildId=unknown
+java.version=11.0.11
+java.vendor=AdoptOpenJDK
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_IN
+Command-line arguments:  -os linux -ws gtk -arch x86_64
+
+!ENTRY com.nxp.mcuxpresso.core.datamodels 1 0 2023-01-05 09:13:48.051
+!MESSAGE Recreating part support. No part support available.
+
+!ENTRY com.nxp.mcuxpresso.core.datamodels 1 0 2023-01-05 09:13:59.504
+!MESSAGE The device 'MK64FN1M0xxx12' (version='1.0.0') from SDK 'SDK_2.x_FRDM-K64F' (version='2.11.0', build='epluginsite519 2022-01-17') will be installed.
+
+!ENTRY org.eclipse.cdt.core 1 0 2023-01-05 09:15:39.104
+!MESSAGE Indexed 'frdmk64f_uart_interrupt' (21 sources, 45 headers) in 5.83 sec: 6,277 declarations; 16,655 references; 3 unresolved inclusions; 24 syntax errors; 28 unresolved names (0.12%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2023-01-05 09:15:43.230
+!MESSAGE Indexed 'frdmk64f_freertos_uart' (34 sources, 73 headers) in 4.11 sec: 9,061 declarations; 28,658 references; 3 unresolved inclusions; 131 syntax errors; 65 unresolved names (0.17%)
+
+!ENTRY org.eclipse.cdt.core 1 0 2023-01-05 09:15:47.125
+!MESSAGE Indexed 'frdmk64f_freertos_i2c' (35 sources, 74 headers) in 3.89 sec: 9,502 declarations; 30,995 references; 3 unresolved inclusions; 131 syntax errors; 65 unresolved names (0.16%)

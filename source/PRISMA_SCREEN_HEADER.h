@@ -1,4 +1,4 @@
-#include "../PRISMA_INCLUDES/PRISMA_SCREEN.c"
+#include "../PRISMA_SCREEN_INCLUDES/PRISMA_SCREEN.c"
 void delay(int);
 int homescreen(void);
 int Master_homescreen(void);

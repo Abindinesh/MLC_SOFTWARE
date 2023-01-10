@@ -33,13 +33,19 @@
  * @brief   Application entry point.
  */
 //#include <stdio.h>
+#include <stdio.h>
+#include "fsl_debug_console.h"
 #include "board.h"
 #include "peripherals.h"
 #include "pin_mux.h"
 #include "clock_config.h"
 #include "MK64F12.h"
-#include "../PRISMA_INCLUDES/PRISMA_SCREEN.c"
-//#include "fsl_debug_console.h"
+#include "fsl_uart.h"
+
+#include "../PRISMA_VALIDATION/PRISMA_VALIDATION.c"
+
+
+
 /* TODO: insert other include files here. */
 
 /* TODO: insert other definitions and declarations here. */
@@ -47,37 +53,35 @@
 /*
  * @brief   Application entry point.
  */
+
 int main(void) {
 
-    /* Init board hardware. */
-    BOARD_InitBootPins();
-    BOARD_InitBootClocks();
-    BOARD_InitBootPeripherals();
-    char master_home_user_option;
-#ifndef BOARD_INIT_DEBUG_CONSOLE_PERIPHERAL
-    /* Init FSL debug console. */
-    BOARD_InitDebugConsole();
-#endif
-    homescreen();
-    while(1) {
-    	while(Master_homescreen(&master_home_user_option)) {
-    		if(master_home_user_option == 's') {
-    			PRINTF("send start signal");
-    		} else if (master_home_user_option == 'd') {
-    			PRINTF("send pause signal");
-    		} else if (master_home_user_option == 'f') {
-    			PRINTF("send pause signal");
-    		} else if (master_home_user_option == 'x') {
-    			PRINTF("send pause signal");
-    		} else if (master_home_user_option == 'v') {
-    			PRINTF("send pause signal");
-    		} else if (master_home_user_option == 'd') {
-    			PRINTF("send pause signal");
-    		} else
-    			continue;
-    	}
+	/* Init board hardware. */
+	BOARD_InitBootPins();
+	BOARD_InitBootClocks();
+	BOARD_InitBootPeripherals();
 
-    }
-    return 0;
+
+#ifndef BOARD_INIT_DEBUG_CONSOLE_PERIPHERAL
+	/* Init FSL debug console. */
+	BOARD_InitDebugConsole();
+#endif
+
+	if (1) {
+		Master_UI();
+
+	}
+	else
+		Slave_UI();
+
+	return 0;
 }
+
+
+
+
+
+
+
+
 
