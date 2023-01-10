@@ -571,10 +571,8 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 			status = 1;
 		} else if (option == '4') {
 			int RF_status;
-			int scan_success;
 			do {
 				PRINTF("\033[15;0H ENTER NEW REPEAT CYCLE     :    ");
-				//scan_success = SCANF("%d", &*repeat_cycle);
 				if(SCANF("%d", &*repeat_cycle)) {
 					PRINTF("\033[15;34H%d\r\n", *repeat_cycle);
 					if ((*repeat_cycle >= 0) && (*repeat_cycle <= 100)) {
@@ -613,53 +611,133 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 	return 1;
 }
 
-int ModeSelect_screen(int *mode_usroption) {
+int ModeSelect_screen(int *mode_usroption,char *mode_option_string) {
 	char option;
 	int status;
 	do {
+		PRINTF("\e[1;1H\e[2J");
 		PRINTF("************************ MODE ************************\n\n\r");
-		PRINTF("-----  CURRENT MODE                  : AUTO UP  -----\n\n\r");
-		PRINTF("\033[3;40H-----\r\n\n\n\n");
+		PRINTF("-----  CURRENT MODE                  : %s  -----\n\n\r",mode_option_string);
 		PRINTF("CHOOSE MODE\n\r");
 		PRINTF("    Q      : AUTO UP\n\r");
 		PRINTF("    W      : AUTO DOWN\n\r");
 		PRINTF("    E      : AUTO UP/DOWN\n\r");
 		PRINTF("    R      : MANUAL\n\n\n\r");
 		PRINTF("        B : BACK\n\r");
+		PRINTF("SELECT AN OPTION     :  ");
 		option = GETCHAR();
-		do {
-			PRINTF("SELECT AN OPTION     :  ");
-			PRINTF("%c\r\n",option);
-			if ((option == 'q') || (option == 'Q')) {
-				*mode_usroption = 1;
-				status = 1;
-			} else if ((option == 'w') || (option == 'W')) {
-				*mode_usroption = 2;
-				status = 1;
-			} else if ((option == 'e') || (option == 'E')) {
-				*mode_usroption = 3;
-				status = 1;
-			} else if ((option == 'r') || (option == 'R')) {
-				*mode_usroption = 4;
-				status = 1;
-			} else if ((option == 'b') || (option == 'B')) {
-				*mode_usroption = 11;
-				status = 0;
-			} else {
-				PRINTF("INVALID OPTION!!!");
+		PRINTF("%c\r\n",option);
+		if ((option == 'q') || (option == 'Q')) {
+			*mode_usroption = 1;
+			strcpy(mode_option_string, "AUTO UP");
+			PRINTF("SUCCESSFULLY UPDATED");
+			delay(10);
+			status = 1;
+		} else if ((option == 'w') || (option == 'W')) {
+			*mode_usroption = 2;
+			strcpy(mode_option_string, "AUTO DOWN");
+			status = 1;
+			PRINTF("SUCCESSFULLY UPDATED");
+			delay(10);
+		} else if ((option == 'e') || (option == 'E')) {
+			*mode_usroption = 3;
+			strcpy(mode_option_string, "AUTO UP/DOWN");
+			status = 1;
+			PRINTF("SUCCESSFULLY UPDATED");
+			delay(10);
+		} else if ((option == 'r') || (option == 'R')) {
+			*mode_usroption = 4;
+			strcpy(mode_option_string, "MANUAL");
+			status = 1;
+			PRINTF("SUCCESSFULLY UPDATED");
+			delay(10);
+		} else if ((option == 'b') || (option == 'B')) {
+			*mode_usroption = 11;
+			status = 0;
+		} else {
+			PRINTF("INVALID OPTION!!!");
+			delay(10);
+			status = 1;
 
-			}
-		} while (status);
-	} while (mode_status);
+		}
+	} while (status);
+	return 1;
 }
 
-void Find_colour_screen(void) {
-	PRINTF(
-			"************************ FIND COLOUR ************************\n\n\r");
-	PRINTF(" ENTER THE COLOUR    :\n\n\n\r");
-	PRINTF(" Note : look at the LED\n\n\n\r");
-	PRINTF("       T : TRY AGAIN\n\r");
-	PRINTF("       B : BACK\n\r");
+int Find_colour_screen(int *find_colour) {
+	int strt_success;
+	char option;
+	do {
+		PRINTF("\e[1;1H\e[2J");
+		PRINTF("************************ FIND COLOUR ************************\n\n\r");
+		PRINTF("\033[4;0H       T : SEARCH\n\r");
+		PRINTF("\033[5;0H       B : BACK\n\r");
+		strt_success = 1;
+		option = GETCHAR();
+		if((option == 't')||(option == 'T')) {
+			PRINTF("\033[14;0H                                   ");
+			PRINTF("\033[7;0HENTER THE COLOUR(R(0 to 7);G(0 to 7);B(0 to 3):\n\n\n\r");
+			PRINTF("\033[8;5HR : ");
+			PRINTF("\033[9;5HG : ");
+			PRINTF("\033[10;5HB : ");
+			PRINTF("\033[8;9H");
+			while (1) {
+				SCANF("%d", &find_colour[0]);
+				PRINTF("\033[8;9H%d\r\n",find_colour[0]);
+				if ((find_colour[0] >= 0) && (find_colour[0] <= 7)) {
+					break;
+				} else {
+					PRINTF("\033[11;0HINVALID ENTRY");
+					delay(10);
+					PRINTF("\033[11;0H                            ");
+					PRINTF("\033[8;9H                            ");
+					PRINTF("\033[8;9H");
+					continue;
+				}
+			}
+			PRINTF("\033[9;5HG : ");
+			while (1) {
+				SCANF("%d", &find_colour[1]);
+				PRINTF("\033[9;9H%d\r\n",find_colour[1]);
+				if ((find_colour[1] >= 0) && (find_colour[1] <= 7)) {
+					break;
+				} else {
+					PRINTF("\033[11;0HINVALID ENTRY");
+					delay(10);
+					PRINTF("\033[11;0H                            ");
+					PRINTF("\033[9;9H                               ");
+					PRINTF("\033[9;9H");
+					continue;
+				}
+			}
+			PRINTF("\033[10;5HB : ");
+			while (1) {
+				SCANF("%d", &find_colour[2]);
+				PRINTF("\033[10;9H%d\r\n",find_colour[2]);
+				if ((find_colour[2] >= 0) && (find_colour[2] <= 3)) {
+					break;
+				} else {
+					PRINTF("\033[11;0HINVALID ENTRY");
+					delay(10);
+					PRINTF("\033[11;0H                            ");
+					PRINTF("\033[10;9H                                      ");
+					PRINTF("\033[10;9H");
+					continue;
+				}
+			}
+			PRINTF("\033[14;0HNote : OBSERVE THE LED\n\n\n\r");
+			delay(10);
+			PRINTF("\033[8;9H                            ");
+			PRINTF("\033[9;9H                            ");
+			PRINTF("\033[10;9H                            ");
+		} else if ((option == 'b') || (option == 'B')) {
+			strt_success = 0;
+		} else {
+			PRINTF("INVALID OPTION");
+			strt_success = 1;
+		}
+	} while (strt_success);
+	return 1;
 }
 
 void Slave_homescreen(void) {
@@ -690,7 +768,3 @@ void Slave_homescreen_failed(void) {
 			"                                                     GENERATE YOUR OWN LED COLOUR PATTERN\n\n\r");
 	PRINTF("WAITING FOR MASTER.......");
 }
-/*
- * EOF
- */
- */

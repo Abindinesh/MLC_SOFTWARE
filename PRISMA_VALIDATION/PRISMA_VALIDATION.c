@@ -9,12 +9,15 @@ int Master_UI() {
 	char colour_coding_scheme_value[3] = {7,7,3};
 	char rate_config_useroptn;
 	char pattern_config_usroption;
+	char mode_option_string[10] = "AUTO UP";
 	int start_colour[3] = {0,0,0};
 	int end_colour[3] = {7,7,3};
 	int resolution[3] = {1,1,1};
+	int find_colour[3];
 	int refresh_rate = 5;
 	int colour_change_rate = 10;
 	int repeat_cycle = 5;
+	int mode_usroption = 1;
 	homescreen();
 	while(1) {
 		Master_homescreen(&master_home_usroption);
@@ -58,7 +61,19 @@ int Master_UI() {
 				} else ;
 			}
 		} else if (master_home_usroption == 'X'){
+			while(ModeSelect_screen(&mode_usroption,mode_option_string)){
+				if(mode_usroption == 11) {
+					break;
+				}
+			}
 		} else if (master_home_usroption == 'V'){
+			while(Find_colour_screen(find_colour)) {
+				if(pattern_config_usroption == 'B') {
+					break;
+				} else if(pattern_config_usroption == 'N') {
+
+				}
+			}
 		} else if (master_home_usroption == 'H'){
 		} else {
 		}
