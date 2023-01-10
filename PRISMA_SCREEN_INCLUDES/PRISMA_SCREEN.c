@@ -574,8 +574,8 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 			int scan_success;
 			do {
 				PRINTF("\033[15;0H ENTER NEW REPEAT CYCLE     :    ");
-				scan_success = SCANF("%d", &*repeat_cycle);
-				if(scan_success) {
+				//scan_success = SCANF("%d", &*repeat_cycle);
+				if(SCANF("%d", &*repeat_cycle)) {
 					PRINTF("\033[15;34H%d\r\n", *repeat_cycle);
 					if ((*repeat_cycle >= 0) && (*repeat_cycle <= 100)) {
 						PRINTF("\033[16;0 SUCCESSFULLY UPDATED......\r\n");
@@ -613,23 +613,44 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 	return 1;
 }
 
-void ModeSelect_screen(void) {
+int ModeSelect_screen(int *mode_usroption) {
 	char option;
-	int status = 1;
-	PRINTF("************************ MODE ************************\n\n\r");
-	PRINTF("-----  CURRENT MODE                  : AUTO UP  -----\n\n\r");
-	PRINTF("\033[3;40H-----\r\n\n\n\n");
-	PRINTF("CHOOSE MODE\n\r");
-	PRINTF("    Q      : AUTO UP\n\r");
-	PRINTF("    W      : AUTO DOWN\n\r");
-	PRINTF("    E      : AUTO UP/DOWN\n\r");
-	PRINTF("    R      : MANUAL\n\n\n\r");
-	PRINTF("        B : BACK\n\r");
-	option = GETCHAR();
+	int status;
 	do {
-		PRINTF("SELECT AN OPTION     :  ");
-		PRINTF("%c\r\n",option);
-	} while(status);
+		PRINTF("************************ MODE ************************\n\n\r");
+		PRINTF("-----  CURRENT MODE                  : AUTO UP  -----\n\n\r");
+		PRINTF("\033[3;40H-----\r\n\n\n\n");
+		PRINTF("CHOOSE MODE\n\r");
+		PRINTF("    Q      : AUTO UP\n\r");
+		PRINTF("    W      : AUTO DOWN\n\r");
+		PRINTF("    E      : AUTO UP/DOWN\n\r");
+		PRINTF("    R      : MANUAL\n\n\n\r");
+		PRINTF("        B : BACK\n\r");
+		option = GETCHAR();
+		do {
+			PRINTF("SELECT AN OPTION     :  ");
+			PRINTF("%c\r\n",option);
+			if ((option == 'q') || (option == 'Q')) {
+				*mode_usroption = 1;
+				status = 1;
+			} else if ((option == 'w') || (option == 'W')) {
+				*mode_usroption = 2;
+				status = 1;
+			} else if ((option == 'e') || (option == 'E')) {
+				*mode_usroption = 3;
+				status = 1;
+			} else if ((option == 'r') || (option == 'R')) {
+				*mode_usroption = 4;
+				status = 1;
+			} else if ((option == 'b') || (option == 'B')) {
+				*mode_usroption = 11;
+				status = 0;
+			} else {
+				PRINTF("INVALID OPTION!!!");
+
+			}
+		} while (status);
+	} while (mode_status);
 }
 
 void Find_colour_screen(void) {
@@ -669,3 +690,7 @@ void Slave_homescreen_failed(void) {
 			"                                                     GENERATE YOUR OWN LED COLOUR PATTERN\n\n\r");
 	PRINTF("WAITING FOR MASTER.......");
 }
+/*
+ * EOF
+ */
+ */
