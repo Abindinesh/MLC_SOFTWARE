@@ -32,7 +32,7 @@
  * @file    PRISMA_SCREEN_VALIDATION.c
  * @brief   Application entry point.
  */
-//#include <stdio.h>
+
 #include <stdio.h>
 #include "fsl_debug_console.h"
 #include "board.h"
@@ -53,6 +53,7 @@
 /*
  * @brief   Application entry point.
  */
+int Master_UI();
 
 int main(void) {
 
@@ -76,7 +77,6 @@ int main(void) {
 
 	return 0;
 }
-
 
 
 

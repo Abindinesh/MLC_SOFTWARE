@@ -80,7 +80,7 @@ void homescreen(void) {
 	delay(20);
 }
 
-int Master_homescreen(char *Master_Home_Usroption) {
+int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_value,int *refresh_rate,int *colour_change_rate,int *start_colour, int *end_colour,int *resolution,char *mode_option_string,int *repeat_cycle) {
 	int status = -1;
 	do {
 		PRINTF("\e[1;1H\e[2J");
@@ -91,14 +91,54 @@ int Master_homescreen(char *Master_Home_Usroption) {
 		PRINTF("         **CURRENT CONFIGURATION**\n\n\r");
 		PRINTF("...SYSTEM CONFIGURATION...\n\n\r");
 		PRINTF(" CONFIGURED AS                      : MASTER\n\r");
-		PRINTF(" RGB CODING SCHEME                  : 7,7,3\n\r");
-		PRINTF(" REFRESH RATE                       : 5\n\r");
-		PRINTF(" COLOUR CHANGE RATE                 : 10\n\n\r");
+		PRINTF(" RGB CODING SCHEME                  : ");
+		for (int i = 0; i <= 3; i++) {
+			if (i == 3)
+				PRINTF("\r\n");
+			else {
+				PRINTF("%d", colour_coding_scheme_value[i]);
+				if (i < 2) {
+					PRINTF(",");
+				}
+			}
+		}
+		PRINTF(" REFRESH RATE                       : %d\n\r",*refresh_rate);
+		PRINTF(" COLOUR CHANGE RATE                 : %d\n\n\r",*colour_change_rate);
 		PRINTF("...PATTERN CONFIGURATION...\n\n\r");
-		PRINTF(" START COLOUR                       : 0,0,0\n\r");
-		PRINTF(" END COLOUR                         : 7,7,3\n\r");
-		PRINTF(" RESOLUTION                         : 1,1,1\n\r");
-		PRINTF(" MODE, CYCLE                        : AUTO UP, 5\n\n\r");
+		PRINTF(" START COLOUR                       : ");
+		for (int i = 0; i <= 3; i++) {
+			if (i == 3)
+				PRINTF("\r\n");
+			else {
+				PRINTF("%d", start_colour[i]);
+				if (i < 2) {
+					PRINTF(",");
+				}
+			}
+		}
+		PRINTF(" END COLOUR                         : ");
+		for (int i = 0; i <= 3; i++) {
+			if (i == 3)
+				PRINTF("\r\n");
+			else {
+				PRINTF("%d", end_colour[i]);
+				if (i < 2) {
+					PRINTF(",");
+				}
+			}
+		}
+		PRINTF(" RESOLUTION                         : ");
+		for (int i = 0; i <= 3; i++) {
+			if (i == 3)
+				PRINTF("\r\n");
+			else {
+				PRINTF("%d", resolution[i]);
+				if (i < 2) {
+					PRINTF(",");
+				}
+			}
+		}
+		PRINTF(" MODE, CYCLE                        : %s, %d\n\n\r",mode_option_string,*repeat_cycle);
 		PRINTF("                **STATUS**\n\n\r");
 		PRINTF(
 				" SLAVE STATUS                       : < CONNECTING/CONNECTED/DISCONNECTED >\n\r");
@@ -223,7 +263,7 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,
 		PRINTF("-----  CURRENT COLOUR CODING SCHEME   : ");
 		for (int i = 0; i <= 3; i++) {
 			if (i == 3)
-				PRINTF("\r\n");
+				PRINTF("  -----\r\n");
 			else {
 				PRINTF("%d", colour_coding_scheme_value[i]);
 				if (i < 2) {
@@ -410,7 +450,7 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 				PRINTF("ENTER START COLOUR\r\n");
 				PRINTF("\033[16;5HR : ");
 				while (1) {
-					SCANF("%d", &start_colour[0]);
+					if(SCANF("%d", &start_colour[0]) != EOF) {
 					PRINTF("\033[16;9H%d\r\n",start_colour[0]);
 					if ((start_colour[0] >= 0) && (start_colour[0] <= 7)) {
 						delay(10);
@@ -422,6 +462,7 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 						PRINTF("\033[16;9H                                 ");
 						PRINTF("\033[16;9H");
 						continue;
+					}
 					}
 				}
 				PRINTF("\033[17;5HG : ");
@@ -611,7 +652,7 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 	return 1;
 }
 
-int ModeSelect_screen(int *mode_usroption,char *mode_option_string) {
+int ModeSelect_screen(int *mode_usroption,int *mode_option_string_value,char *mode_option_string) {
 	char option;
 	int status;
 	do {
@@ -631,23 +672,27 @@ int ModeSelect_screen(int *mode_usroption,char *mode_option_string) {
 			*mode_usroption = 1;
 			strcpy(mode_option_string, "AUTO UP");
 			PRINTF("SUCCESSFULLY UPDATED");
+			*mode_option_string_value =1;
 			delay(10);
 			status = 1;
 		} else if ((option == 'w') || (option == 'W')) {
 			*mode_usroption = 2;
 			strcpy(mode_option_string, "AUTO DOWN");
+			*mode_option_string_value = 2;
 			status = 1;
 			PRINTF("SUCCESSFULLY UPDATED");
 			delay(10);
 		} else if ((option == 'e') || (option == 'E')) {
 			*mode_usroption = 3;
 			strcpy(mode_option_string, "AUTO UP/DOWN");
+			*mode_option_string_value = 3;
 			status = 1;
 			PRINTF("SUCCESSFULLY UPDATED");
 			delay(10);
 		} else if ((option == 'r') || (option == 'R')) {
 			*mode_usroption = 4;
 			strcpy(mode_option_string, "MANUAL");
+			*mode_option_string_value = 4;
 			status = 1;
 			PRINTF("SUCCESSFULLY UPDATED");
 			delay(10);
@@ -664,7 +709,7 @@ int ModeSelect_screen(int *mode_usroption,char *mode_option_string) {
 	return 1;
 }
 
-int Find_colour_screen(int *find_colour) {
+int Find_colour_screen(int *find_colour,char *find_usroption) {
 	int strt_success;
 	char option;
 	do {
@@ -672,7 +717,17 @@ int Find_colour_screen(int *find_colour) {
 		PRINTF("************************ FIND COLOUR ************************\n\n\r");
 		PRINTF("\033[4;0H       T : SEARCH\n\r");
 		PRINTF("\033[5;0H       B : BACK\n\r");
-		strt_success = 1;
+		PRINTF("\033[7;0HCURRENTLY DISPLAYING COLOUR CODE     : ");
+		for (int i = 0; i <= 3; i++) {
+			if (i == 3)
+				PRINTF("\r\n");
+			else {
+				PRINTF("%d", find_colour[i]);
+				if (i < 2) {
+					PRINTF(",");
+				}
+			}
+		}
 		option = GETCHAR();
 		if((option == 't')||(option == 'T')) {
 			PRINTF("\033[14;0H                                   ");
@@ -715,6 +770,8 @@ int Find_colour_screen(int *find_colour) {
 				SCANF("%d", &find_colour[2]);
 				PRINTF("\033[10;9H%d\r\n",find_colour[2]);
 				if ((find_colour[2] >= 0) && (find_colour[2] <= 3)) {
+					*find_usroption = 'S';
+					strt_success = 0;
 					break;
 				} else {
 					PRINTF("\033[11;0HINVALID ENTRY");
@@ -731,6 +788,10 @@ int Find_colour_screen(int *find_colour) {
 			PRINTF("\033[9;9H                            ");
 			PRINTF("\033[10;9H                            ");
 		} else if ((option == 'b') || (option == 'B')) {
+			*find_usroption = 'B';
+			find_colour[0] = 0;
+			find_colour[1] = 0;
+			find_colour[2] = 0;
 			strt_success = 0;
 		} else {
 			PRINTF("INVALID OPTION");
@@ -768,3 +829,67 @@ void Slave_homescreen_failed(void) {
 			"                                                     GENERATE YOUR OWN LED COLOUR PATTERN\n\n\r");
 	PRINTF("WAITING FOR MASTER.......");
 }
+
+int Help_screen(char *help_scrn_usroption) {
+	PRINTF("WAITING FOR MASTER.......");
+	return 1;
+}
+
+/*
+ * 			if(mode_option_string_value == 1) {
+				if (start_colour[0] > end_colour[0]) {
+					if(resolution[0] > 0) {
+						send_status_flag = send_status_flag + 1;
+					} else {
+						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
+					}
+
+				} else if (start_colour[0] == end_colour[0]) {
+					if(resolution[0] == 0) {
+						send_status_flag = send_status_flag + 1;
+					} else {
+						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
+					}
+				} else {
+					PRINTF("TRY A VALID START AND END COLOUR");
+				}
+
+				if (start_colour[1] > end_colour[1]) {
+					if(resolution[1] > 0) {
+						send_status_flag = send_status_flag + 1;
+					} else {
+						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
+					}
+
+				} else if (start_colour[1] == end_colour[1]) {
+					if(resolution[1] == 0) {
+						send_status_flag = send_status_flag + 1;
+					} else {
+						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
+					}
+				} else {
+					PRINTF("TRY A VALID START AND END COLOUR");
+				}
+
+				if (start_colour[2] > end_colour[2]) {
+					if(resolution[2] > 0) {
+						send_status_flag = send_status_flag + 1;
+					} else {
+						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
+					}
+
+				} else if (start_colour[2] == end_colour[2]) {
+					if(resolution[2] == 0) {
+						send_status_flag = send_status_flag + 1;
+					} else {
+						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
+					}
+				} else {
+					PRINTF("TRY A VALID START AND END COLOUR");
+				}
+				if(send_status_flag == 3) {
+					PRINTF("validation success and data is send");
+				}
+
+ *
+ * */
