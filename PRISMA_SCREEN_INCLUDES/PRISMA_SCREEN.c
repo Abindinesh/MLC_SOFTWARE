@@ -144,8 +144,6 @@ int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_val
 				" SLAVE STATUS                       : < CONNECTING/CONNECTED/DISCONNECTED >\n\r");
 		PRINTF(
 				" MODE OF WORKING                    : < MASTER-SLAVE/STAND ALONE >\n\r");
-		PRINTF(
-				" CURRENTLY WORKING IN               : < DEFAULT CONFIGURATION/USER DEFINED CONFIGURATION >\n\r");
 		PRINTF(" CURRENT LED COLOUR                 : 0,0,0\n\r");
 		PRINTF(" NO OF CYCLES COMPLETED             : 0\n\n\r");
 		PRINTF("      S     : START/STOP\n\r");
@@ -253,8 +251,7 @@ int System_config_screen(char *system_config_user_option) {
 	return 1;
 }
 
-int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,
-		char *colour_coding_scheme_value) {
+int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,int *colour_coding_scheme_queue_value,char *colour_coding_scheme_value) {
 	int status;
 	do {
 		PRINTF("\e[1;1H\e[2J");
@@ -282,6 +279,7 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,
 		PRINTF("%c\r\n", *colour_coding_scheme_useroptn);
 		delay(5);
 		if (*colour_coding_scheme_useroptn == '1') {
+			*colour_coding_scheme_queue_value = 1;
 			colour_coding_scheme_value[0] = 7;
 			colour_coding_scheme_value[1] = 7;
 			colour_coding_scheme_value[2] = 3;
@@ -289,6 +287,7 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,
 			delay(9);
 			status = 1;
 		} else if (*colour_coding_scheme_useroptn == '2') {
+			*colour_coding_scheme_queue_value = 2;
 			colour_coding_scheme_value[0] = 4;
 			colour_coding_scheme_value[1] = 4;
 			colour_coding_scheme_value[2] = 4;
@@ -296,6 +295,7 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,
 			delay(9);
 			status = 1;
 		} else if (*colour_coding_scheme_useroptn == '3') {
+			*colour_coding_scheme_queue_value = 3;
 			colour_coding_scheme_value[0] = 8;
 			colour_coding_scheme_value[1] = 8;
 			colour_coding_scheme_value[2] = 8;
@@ -448,44 +448,44 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 			do {
 				strt_success = 1;
 				PRINTF("ENTER START COLOUR\r\n");
-				PRINTF("\033[16;5HR : ");
+				PRINTF("\033[16;5HR(0 to 7) : ");
 				while (1) {
-					if(SCANF("%d", &start_colour[0]) != EOF) {
-					PRINTF("\033[16;9H%d\r\n",start_colour[0]);
-					if ((start_colour[0] >= 0) && (start_colour[0] <= 7)) {
-						delay(10);
+					SCANF("%c", &start_colour[0]);
+					if((start_colour[0] >= 48) && (start_colour[0] <= 55)) {
+						start_colour[0] = start_colour[0] - 48;
+						PRINTF("\033[16;17H%d\r\n",start_colour[0]);
 						break;
 					} else {
 						PRINTF("\033[17;9HINVALID ENTRY");
 						delay(10);
 						PRINTF("\033[17;9H                            ");
-						PRINTF("\033[16;9H                                 ");
-						PRINTF("\033[16;9H");
+						PRINTF("\033[16;17H                                 ");
+						PRINTF("\033[16;17H");
 						continue;
 					}
-					}
 				}
-				PRINTF("\033[17;5HG : ");
+				PRINTF("\033[17;5HG(0 to 7) : ");
 				while (1) {
-					SCANF("%d", &start_colour[1]);
-					PRINTF("\033[17;9H%d\r\n",start_colour[1]);
-					if ((start_colour[1] >= 0) && (start_colour[1] <= 7)) {
-						delay(10);
+					SCANF("%c", &start_colour[1]);
+					if((start_colour[1] >= 48) && (start_colour[1] <= 55)) {
+						start_colour[1] = start_colour[1] - 48;
+						PRINTF("\033[17;17H%d\r\n",start_colour[1]);
 						break;
 					} else {
 						PRINTF("\033[18;9HINVALID ENTRY");
 						delay(10);
 						PRINTF("\033[18;9H                            ");
-						PRINTF("\033[17;9H                               ");
-						PRINTF("\033[17;9H");
+						PRINTF("\033[17;17H                                 ");
+						PRINTF("\033[17;17H");
 						continue;
 					}
 				}
-				PRINTF("\033[18;5HB : ");
+				PRINTF("\033[18;5HB(0 to 3) : ");
 				while (1) {
-					SCANF("%d", &start_colour[2]);
-					PRINTF("\033[18;9H%d\r\n",start_colour[2]);
-					if ((start_colour[2] >= 0) && (start_colour[2] <= 3)) {
+					SCANF("%c", &start_colour[2]);
+					if((start_colour[2] >= 48) && (start_colour[2] <= 51)) {
+						start_colour[2] = start_colour[2] - 48;
+						PRINTF("\033[18;17H%d\r\n",start_colour[2]);
 						delay(10);
 						strt_success = 0;
 						break;
@@ -493,8 +493,8 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 						PRINTF("\033[19;9HINVALID ENTRY");
 						delay(10);
 						PRINTF("\033[19;9H                            ");
-						PRINTF("\033[18;9H                                      ");
-						PRINTF("\033[18;9H");
+						PRINTF("\033[18;17H                                 ");
+						PRINTF("\033[18;17H");
 						continue;
 					}
 				}
@@ -504,43 +504,44 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 			do {
 				strt_success = 1;
 				PRINTF("ENTER END COLOUR\r\n");
-				PRINTF("\033[16;5HR : ");
+				PRINTF("\033[16;5HR(0 to 7) : ");
 				while (1) {
-					SCANF("%d", &end_colour[0]);
-					PRINTF("\033[16;9H%d\r\n",end_colour[0]);
-					if ((end_colour[0] >= 0) && (end_colour[0] <= 7)) {
-						delay(10);
+					SCANF("%c", &end_colour[0]);
+					if((end_colour[0] >= 48) && (end_colour[0] <= 55)) {
+						end_colour[0] = end_colour[0] - 48;
+						PRINTF("\033[16;17H%d\r\n",end_colour[0]);
 						break;
 					} else {
 						PRINTF("\033[17;9HINVALID ENTRY");
 						delay(10);
 						PRINTF("\033[17;9H                            ");
-						PRINTF("\033[16;9H                                 ");
-						PRINTF("\033[16;9H");
+						PRINTF("\033[16;17H                                 ");
+						PRINTF("\033[16;17H");
 						continue;
 					}
 				}
-				PRINTF("\033[17;5HG : ");
+				PRINTF("\033[17;5HG(0 to 7) : ");
 				while (1) {
-					SCANF("%d", &end_colour[1]);
-					PRINTF("\033[17;9H%d\r\n",end_colour[1]);
-					if ((end_colour[1] >= 0) && (end_colour[1] <= 7)) {
-						delay(10);
+					SCANF("%c", &end_colour[1]);
+					if ((end_colour[1] >= 48) && (end_colour[1] <= 55)) {
+						end_colour[1] = end_colour[1] - 48;
+						PRINTF("\033[17;17H%d\r\n",end_colour[1]);
 						break;
 					} else {
 						PRINTF("\033[18;9HINVALID ENTRY");
 						delay(10);
 						PRINTF("\033[18;9H                            ");
-						PRINTF("\033[17;9H                               ");
-						PRINTF("\033[17;9H");
+						PRINTF("\033[17;17H                               ");
+						PRINTF("\033[17;17H");
 						continue;
 					}
 				}
-				PRINTF("\033[18;5HB : ");
+				PRINTF("\033[18;5HB(0 to 3) : ");
 				while (1) {
-					SCANF("%d", &end_colour[2]);
-					PRINTF("\033[18;9H%d\r\n",end_colour[2]);
-					if ((end_colour[2] >= 0) && (end_colour[2] <= 3)) {
+					SCANF("%c", &end_colour[2]);
+					if((end_colour[2] >= 48) && (end_colour[2] <= 51)) {
+						end_colour[2] = end_colour[2] - 48;
+						PRINTF("\033[18;17H%d\r\n",end_colour[2]);
 						delay(10);
 						strt_success = 0;
 						break;
@@ -548,8 +549,8 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 						PRINTF("\033[19;9HINVALID ENTRY");
 						delay(10);
 						PRINTF("\033[19;9H                            ");
-						PRINTF("\033[18;9H                                      ");
-						PRINTF("\033[18;9H");
+						PRINTF("\033[18;17H                                 ");
+						PRINTF("\033[18;17H");
 						continue;
 					}
 				}
@@ -559,43 +560,44 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 			do {
 				strt_success = 1;
 				PRINTF("ENTER RESOLUTION COLOUR\r\n");
-				PRINTF("\033[16;5HR : ");
+				PRINTF("\033[16;5HR(0 to 7) : ");
 				while (1) {
-					SCANF("%d", &resolution[0]);
-					PRINTF("\033[16;9H%d\r\n",resolution[0]);
-					if ((resolution[0] >= 0) && (resolution[0] <= 7)) {
-						delay(10);
+					SCANF("%c", &resolution[0]);
+					if ((resolution[0] >= 48) && (resolution[0] <= 55)) {
+						resolution[0] = resolution[0] - 48;
+						PRINTF("\033[16;17H%d\r\n",resolution[0]);
 						break;
 					} else {
 						PRINTF("\033[17;9HINVALID ENTRY");
 						delay(10);
 						PRINTF("\033[17;9H                            ");
-						PRINTF("\033[16;9H                                 ");
-						PRINTF("\033[16;9H");
+						PRINTF("\033[16;17H                                 ");
+						PRINTF("\033[16;17H");
 						continue;
 					}
 				}
-				PRINTF("\033[17;5HG : ");
+				PRINTF("\033[17;5HG(0 to 7) : ");
 				while (1) {
-					SCANF("%d", &resolution[1]);
-					PRINTF("\033[17;9H%d\r\n",resolution[1]);
-					if ((resolution[1] >= 0) && (resolution[1] <= 7)) {
-						delay(10);
+					SCANF("%c", &resolution[1]);
+					if ((resolution[1] >= 48) && (resolution[1] <= 55)) {
+						resolution[1] = resolution[1] - 48;
+						PRINTF("\033[17;17H%d\r\n",resolution[1]);
 						break;
 					} else {
 						PRINTF("\033[18;9HINVALID ENTRY");
 						delay(10);
 						PRINTF("\033[18;9H                            ");
-						PRINTF("\033[17;9H                               ");
-						PRINTF("\033[17;9H");
+						PRINTF("\033[17;17H                               ");
+						PRINTF("\033[17;17H");
 						continue;
 					}
 				}
-				PRINTF("\033[18;5HB : ");
+				PRINTF("\033[18;5HB(0 to 3) : ");
 				while (1) {
-					SCANF("%d", &resolution[2]);
-					PRINTF("\033[18;9H%d\r\n",resolution[2]);
-					if ((resolution[2] >= 0) && (resolution[2] <= 3)) {
+					SCANF("%c", &resolution[2]);
+					if((resolution[2] >= 48) && (resolution[2] <= 51)) {
+						resolution[2] = resolution[2] - 48;
+						PRINTF("\033[18;17H%d\r\n",resolution[2]);
 						delay(10);
 						strt_success = 0;
 						break;
@@ -603,8 +605,8 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 						PRINTF("\033[19;9HINVALID ENTRY");
 						delay(10);
 						PRINTF("\033[19;9H                            ");
-						PRINTF("\033[18;9H                                      ");
-						PRINTF("\033[18;9H");
+						PRINTF("\033[18;17H                                 ");
+						PRINTF("\033[18;17H");
 						continue;
 					}
 				}
@@ -613,7 +615,7 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 		} else if (option == '4') {
 			int RF_status;
 			do {
-				PRINTF("\033[15;0H ENTER NEW REPEAT CYCLE     :    ");
+				PRINTF("\033[15;0H ENTER NEW REPEAT CYCLE(0 to 100)     :    ");
 				if(SCANF("%d", &*repeat_cycle)) {
 					PRINTF("\033[15;34H%d\r\n", *repeat_cycle);
 					if ((*repeat_cycle >= 0) && (*repeat_cycle <= 100)) {
@@ -672,7 +674,7 @@ int ModeSelect_screen(int *mode_usroption,int *mode_option_string_value,char *mo
 			*mode_usroption = 1;
 			strcpy(mode_option_string, "AUTO UP");
 			PRINTF("SUCCESSFULLY UPDATED");
-			*mode_option_string_value =1;
+			*mode_option_string_value = 1;
 			delay(10);
 			status = 1;
 		} else if ((option == 'w') || (option == 'W')) {
@@ -835,61 +837,3 @@ int Help_screen(char *help_scrn_usroption) {
 	return 1;
 }
 
-/*
- * 			if(mode_option_string_value == 1) {
-				if (start_colour[0] > end_colour[0]) {
-					if(resolution[0] > 0) {
-						send_status_flag = send_status_flag + 1;
-					} else {
-						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
-					}
-
-				} else if (start_colour[0] == end_colour[0]) {
-					if(resolution[0] == 0) {
-						send_status_flag = send_status_flag + 1;
-					} else {
-						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
-					}
-				} else {
-					PRINTF("TRY A VALID START AND END COLOUR");
-				}
-
-				if (start_colour[1] > end_colour[1]) {
-					if(resolution[1] > 0) {
-						send_status_flag = send_status_flag + 1;
-					} else {
-						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
-					}
-
-				} else if (start_colour[1] == end_colour[1]) {
-					if(resolution[1] == 0) {
-						send_status_flag = send_status_flag + 1;
-					} else {
-						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
-					}
-				} else {
-					PRINTF("TRY A VALID START AND END COLOUR");
-				}
-
-				if (start_colour[2] > end_colour[2]) {
-					if(resolution[2] > 0) {
-						send_status_flag = send_status_flag + 1;
-					} else {
-						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
-					}
-
-				} else if (start_colour[2] == end_colour[2]) {
-					if(resolution[2] == 0) {
-						send_status_flag = send_status_flag + 1;
-					} else {
-						PRINTF("THE CURRENT RESOLUTION IS FAULTY.CHANGE IT AND TRY AGAIN");
-					}
-				} else {
-					PRINTF("TRY A VALID START AND END COLOUR");
-				}
-				if(send_status_flag == 3) {
-					PRINTF("validation success and data is send");
-				}
-
- *
- * */

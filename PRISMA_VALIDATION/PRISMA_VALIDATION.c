@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include "fsl_debug_console.h"
 #include "../PRISMA_SCREEN_INCLUDES/PRISMA_SCREEN.c"
+
+#define QUEUE_SEND_BUFFER_SIZE 14
+
 int Master_UI() {
 	char master_home_usroption;
 	char edit_scrn_usroptn;
@@ -12,6 +15,7 @@ int Master_UI() {
 	char find_usroption;
 	char help_scrn_usroption;
 	char mode_option_string[10] = "AUTO UP";
+	int colour_coding_scheme_queue_value = 1;
 	int mode_option_string_value = 1;
 	int start_colour[3] = {0,0,0};
 	int end_colour[3] = {7,7,3};
@@ -21,6 +25,7 @@ int Master_UI() {
 	int colour_change_rate = 10;
 	int repeat_cycle = 5;
 	int mode_usroption = 1;
+	int QUEUE_SEND_BUFFER[QUEUE_SEND_BUFFER_SIZE];
 
 	homescreen();
 	while(1) {
@@ -33,7 +38,7 @@ int Master_UI() {
 						if(resolution[0] > 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -41,7 +46,7 @@ int Master_UI() {
 						if(resolution[0] == 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -53,7 +58,7 @@ int Master_UI() {
 						if(resolution[1] > 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -61,7 +66,7 @@ int Master_UI() {
 						if(resolution[1] == 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -74,7 +79,7 @@ int Master_UI() {
 						if(resolution[2] > 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -83,7 +88,7 @@ int Master_UI() {
 						if(resolution[2] == 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -97,7 +102,7 @@ int Master_UI() {
 						if(resolution[0] > 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -106,7 +111,7 @@ int Master_UI() {
 						if(resolution[0] == 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -118,7 +123,7 @@ int Master_UI() {
 						if(resolution[1] > 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -127,7 +132,7 @@ int Master_UI() {
 						if(resolution[1] == 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -140,7 +145,7 @@ int Master_UI() {
 						if(resolution[2] > 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -149,7 +154,7 @@ int Master_UI() {
 						if(resolution[2] == 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -164,7 +169,7 @@ int Master_UI() {
 						if(resolution[0] > 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -172,7 +177,7 @@ int Master_UI() {
 						if(resolution[0] == 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -184,7 +189,7 @@ int Master_UI() {
 						if(resolution[1] > 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -193,7 +198,7 @@ int Master_UI() {
 						if(resolution[1] == 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -206,7 +211,7 @@ int Master_UI() {
 						if(resolution[2] > 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -215,7 +220,7 @@ int Master_UI() {
 						if(resolution[2] == 0) {
 							send_status_flag = send_status_flag + 1;
 						} else {
-							PRINTF("THE START COLOUR OF RED IS %d>>>>>> END COLOUR IS %d>>>>>>RESOLUTION IS %d>>>>>>>IS INVALID<<<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
+							PRINTF("THE START COLOUR OF RED IS %d >>>>>> END COLOUR IS  %d >>>>>> RESOLUTION IS  %d >>>>>> IS INVALID <<<<<<\r\n",start_colour[0],end_colour[0],resolution[0]);
 							delay(20);
 							break;
 						}
@@ -229,8 +234,27 @@ int Master_UI() {
 				} else if(mode_option_string_value == 4) {                      // MANUAL validation
 				}
 				//implement queue send
+				QUEUE_SEND_BUFFER[0] = refresh_rate;
+				QUEUE_SEND_BUFFER[1] = colour_coding_scheme_queue_value;
+				QUEUE_SEND_BUFFER[2] = start_colour[0];
+				QUEUE_SEND_BUFFER[3] = start_colour[1];
+				QUEUE_SEND_BUFFER[4] = start_colour[2];
+				QUEUE_SEND_BUFFER[5] = end_colour[0];
+				QUEUE_SEND_BUFFER[6] = end_colour[1];
+				QUEUE_SEND_BUFFER[7] = end_colour[2];
+				QUEUE_SEND_BUFFER[8] = resolution[0];
+				QUEUE_SEND_BUFFER[9] = resolution[1];
+				QUEUE_SEND_BUFFER[10] = resolution[2];
+				QUEUE_SEND_BUFFER[11] = colour_change_rate;
+				QUEUE_SEND_BUFFER[12] = mode_option_string_value;
+				QUEUE_SEND_BUFFER[13] = repeat_cycle;
+				for(int i = 0;i <= 13;i++) {
+					PRINTF("queue data = %d\n\r",QUEUE_SEND_BUFFER[i]);
+				}
+
+
 				PRINTF("success");
-				delay(20);
+				delay(50);
 				break;
 			}
 		} else if(master_home_usroption == 'D'){
@@ -239,7 +263,7 @@ int Master_UI() {
 				if (edit_scrn_usroptn == '1') {
 					while (System_config_screen(&system_config_user_option)) {
 						if(system_config_user_option == '1') {
-							while (Colour_coding_scheme_screen(&colour_coding_scheme_useroptn,colour_coding_scheme_value)) {
+							while (Colour_coding_scheme_screen(&colour_coding_scheme_useroptn,&colour_coding_scheme_queue_value,colour_coding_scheme_value)) {
 								if(colour_coding_scheme_useroptn == 'B') {
 									break;
 								} else if(colour_coding_scheme_useroptn == 'N') {
