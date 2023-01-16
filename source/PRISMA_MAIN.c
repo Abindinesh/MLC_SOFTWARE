@@ -68,6 +68,27 @@ int main(void) {
 	BOARD_InitDebugConsole();
 #endif
 
+    uart_config_t config;
+
+    BOARD_InitBootPins();
+    BOARD_InitBootClocks();
+
+    /*
+     * config.baudRate_Bps = 115200U;
+     * config.parityMode = kUART_ParityDisabled;
+     * config.stopBitCount = kUART_OneStopBit;
+     * config.txFifoWatermark = 0;
+     * config.rxFifoWatermark = 1;
+     * config.enableTx = false;
+     * config.enableRx = false;
+     */
+    UART_GetDefaultConfig(&config);
+    config.baudRate_Bps = BOARD_DEBUG_UART_BAUDRATE;
+    config.enableTx     = true;
+    config.enableRx     = true;
+
+    UART_Init(PRISMA_UART, &config, PRISMA_UART_CLK_FREQ);
+
 	if (1) {
 		Master_UI();
 

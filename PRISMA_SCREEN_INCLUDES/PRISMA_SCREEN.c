@@ -17,17 +17,13 @@
 #define PRISMA_RING_BUFFER_SIZE 16
 #define gotoxy(x,y) PRINTF("\033[%d;%dH", (y), (x))
 
-//PRINTF("\033[0;0H %d", );
-
-#define true 1
-#define false 0
-
 int interrupt_flag = 0;
-
+char uart_read = 0;
 void PRISMA_UART_IRQHandler(void) {
-	interrupt_flag = true;
-	//PRISMA_UART_READ_DATA = UART_ReadByte(PRISMA_UART);
-	SDK_ISR_EXIT_BARRIER;
+	if ((kUART_RxDataRegFullFlag | kUART_RxOverrunFlag) & UART_GetStatusFlags(PRISMA_UART)) {
+		interrupt_flag = 1;
+		uart_read = UART_ReadByte(PRISMA_UART);
+	}
 }
 
 void delay(int count) {
@@ -153,7 +149,12 @@ int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_val
 		PRINTF("      V     : FIND COLOUR\n\r");
 		PRINTF("      H     : HELP?\n\n\n\r");
 		PRINTF("ENTER YOUR OPTION :");
-		*Master_Home_Usroption = GETCHAR();
+		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		EnableIRQ(PRISMA_UART_IRQn);
+		while(!interrupt_flag) {
+		}
+		*Master_Home_Usroption = uart_read;
+		interrupt_flag = 0;
 		PRINTF("%c\r\n", *Master_Home_Usroption);
 		delay(2);
 		if ((*Master_Home_Usroption == 's')
@@ -190,6 +191,8 @@ int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_val
 			delay(9);
 			status = 1;
 		}
+		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -204,7 +207,12 @@ int Edit_config_screen(char *edit_scrn_usroptn) {
 		PRINTF("       2    : PATTERN CONFIGURATION\n\n\n\r");
 		PRINTF("       B : BACK TO HOME\n\r");
 		PRINTF("ENTER YOUR OPTION :");
-		*edit_scrn_usroptn = GETCHAR();
+		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		EnableIRQ(PRISMA_UART_IRQn);
+		while(!interrupt_flag) {
+		}
+		*edit_scrn_usroptn = uart_read;
+		interrupt_flag = 0;
 		PRINTF("%c\r\n", *edit_scrn_usroptn);
 		delay(2);
 		if (*edit_scrn_usroptn == '1') {
@@ -216,8 +224,11 @@ int Edit_config_screen(char *edit_scrn_usroptn) {
 			status = 0;
 		} else {
 			PRINTF("INVALID OPTION TRIED!!!\n\n\rTRY AGAIN...\r\n");
+			delay(9);
 			status = 1;
 		}
+		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -232,7 +243,13 @@ int System_config_screen(char *system_config_user_option) {
 		PRINTF("       2    : RATES\n\n\n\r");
 		PRINTF("       B : BACK\n\r");
 		PRINTF("ENTER YOUR OPTION :");
-		*system_config_user_option = GETCHAR();
+		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		EnableIRQ(PRISMA_UART_IRQn);
+
+		while(!interrupt_flag) {
+		}
+		*system_config_user_option = uart_read;
+		interrupt_flag = 0;
 		PRINTF("%c\r\n", *system_config_user_option);
 		delay(2);
 		if (*system_config_user_option == '1') {
@@ -245,8 +262,11 @@ int System_config_screen(char *system_config_user_option) {
 			status = 0;
 		} else {
 			PRINTF("INVALID OPTION TRIED!!!\n\n\rTRY AGAIN...\r\n");
+			delay(9);
 			status = 1;
 		}
+		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -275,7 +295,12 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,int *colour_
 		PRINTF("       B : BACK\n\r");
 		PRINTF("       N : HOME\n\n\r");
 		PRINTF("ENTER YOUR OPTION :");
-		*colour_coding_scheme_useroptn = GETCHAR();
+		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		EnableIRQ(PRISMA_UART_IRQn);
+		while(!interrupt_flag) {
+		}
+		*colour_coding_scheme_useroptn = uart_read;
+		interrupt_flag = 0;
 		PRINTF("%c\r\n", *colour_coding_scheme_useroptn);
 		delay(5);
 		if (*colour_coding_scheme_useroptn == '1') {
@@ -316,6 +341,8 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,int *colour_
 			delay(9);
 			status = 1;
 		}
+		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 
 	return 1;
@@ -324,6 +351,7 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,int *colour_
 int Rate_configuration_screen(char *rate_config_useroptn, int *refresh_rate,
 		int *colour_change_rate) {
 	int status, RF_status, CLR_status;
+	int readed_rate;
 	char option;
 	do {
 		PRINTF("\e[1;1H\e[2J");
@@ -335,21 +363,58 @@ int Rate_configuration_screen(char *rate_config_useroptn, int *refresh_rate,
 				*colour_change_rate);
 		PRINTF("         B : BACK\n\r");
 		PRINTF("         N : HOME\n\r");
-		PRINTF("SELECT OPTION\r\n");
-		option = GETCHAR();
+		PRINTF("SELECT OPTION  :\r\n");
+		PRINTF("\033[9;17H");
+		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		EnableIRQ(PRISMA_UART_IRQn);
+		while(!interrupt_flag) {
+		}
+		option = uart_read;
+		interrupt_flag = 0;
 		if (option == '1') {
 			do {
-				PRINTF("\033[9;0H ENTER NEW REFRESH RATE (1 TO 9999)     :");
-				SCANF("%d", &*refresh_rate);
-				PRINTF("%d\r\n", *refresh_rate);
+				int refresh_rate1 = 0;
+				PRINTF("\033[9;0HENTER NEW REFRESH RATE (1 TO 9999)     : ****");
+				for(int i = 1;i <= 4;i++) {
+					PRINTF("\033[9;%dH",41+i);
+					while(!interrupt_flag) {
+					}
+					readed_rate = uart_read;
+					interrupt_flag = 0;
+					if((readed_rate >= 48) && (readed_rate <= 57)) {
+						readed_rate = readed_rate - 48;
+						if(i == 1) {
+							PRINTF("%d",readed_rate);
+							PRINTF("\033[9;43H");
+							refresh_rate1 = refresh_rate1 + readed_rate * 1000;
+						} else if (i == 2) {
+							PRINTF("%d",readed_rate);
+							PRINTF("\033[9;44H");
+							refresh_rate1 = refresh_rate1 + readed_rate * 100;
+						} else if (i == 3) {
+							PRINTF("%d",readed_rate);
+							PRINTF("\033[9;45H");
+							refresh_rate1 = refresh_rate1 + readed_rate * 10;
+						} else if (i == 4) {
+							PRINTF("%d\r\n",readed_rate);
+							refresh_rate1 = refresh_rate1 + readed_rate * 1;
+						} else ;
+					} else {
+						PRINTF("\033[10;0HNOT VALID NUMBER");
+						delay(30);
+						PRINTF("\033[10;0H                          ");
+						i--;
+					}
+				}
+				*refresh_rate = refresh_rate1;
 				if ((*refresh_rate >= 1) && (*refresh_rate <= 9999)) {
-					PRINTF("\033[10;0 SUCCESSFULLY UPDATED......\r\n");
+					PRINTF("\033[11;0 SUCCESSFULLY UPDATED......\r\n");
 					delay(10);
 					RF_status = 0;
 				} else {
 					PRINTF("\033[10;0H INVALID!!!\r\nTRY AGAIN...");
 					delay(10);
-					PRINTF("\033[10;0H                              ");
+					PRINTF("\033[11;0H                              ");
 					PRINTF(
 							"\033[9;0H                                                                                  ");
 					PRINTF(
@@ -360,9 +425,50 @@ int Rate_configuration_screen(char *rate_config_useroptn, int *refresh_rate,
 			status = 1;
 		} else if (option == '2') {
 			do {
-				PRINTF("\033[9;0H ENTER NEW COLOUR CHANGE RATE(1 TO 500) :");
-				SCANF("%d", &*colour_change_rate);
-				PRINTF("%d\r\n", *colour_change_rate);
+				int colour_change_rate1 = 0;
+				PRINTF("\033[9;0H ENTER NEW COLOUR CHANGE RATE(1 TO 500) : ***");
+				for(int i=1;i <= 3;i++) {
+					PRINTF("\033[9;%dH",42+i);
+					while(!interrupt_flag) {
+					}
+					readed_rate = uart_read;
+					interrupt_flag = 0;
+					if(i == 1) {
+						if((readed_rate >= 48) && (readed_rate <= 53)) {
+							readed_rate = readed_rate - 48;
+							PRINTF("%d",readed_rate);
+							colour_change_rate1 = colour_change_rate1 + readed_rate * 100;
+						} else {
+							PRINTF("\033[10;0HNOT VALID NUMBER!!!\r\n");
+							delay(10);
+							PRINTF("\033[10;0H                                            ");
+							i--;
+						}
+					} else if(i == 2) {
+						if((readed_rate >= 48) && (readed_rate <= 57)) {
+							readed_rate = readed_rate - 48;
+							PRINTF("%d",readed_rate);
+							colour_change_rate1 = colour_change_rate1 + readed_rate * 10;
+						} else {
+							PRINTF("\033[10;0HNOT VALID NUMBER!!!\r\n");
+							delay(10);
+							PRINTF("\033[10;0H                                            ");
+							i--;
+						}
+					} else if(i == 3) {
+						if((readed_rate >= 48) && (readed_rate <= 57)) {
+							readed_rate = readed_rate - 48;
+							PRINTF("%d",readed_rate);
+							colour_change_rate1 = colour_change_rate1 + readed_rate * 1;
+						} else {
+							PRINTF("\033[10;0HNOT VALID NUMBER!!!\r\n");
+							delay(10);
+							PRINTF("\033[10;0H                                            ");
+							i--;
+						}
+					} else ;
+				}
+				*colour_change_rate = colour_change_rate1;
 				if ((*colour_change_rate >= 1)
 						&& (*colour_change_rate <= 500)) {
 					PRINTF("\033[10;0H SUCCESSFULLY UPDATED......\r\n");
@@ -392,6 +498,8 @@ int Rate_configuration_screen(char *rate_config_useroptn, int *refresh_rate,
 			delay(9);
 			status = 1;
 		}
+		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -399,7 +507,7 @@ int Rate_configuration_screen(char *rate_config_useroptn, int *refresh_rate,
 int Pattern_configuration_screen(int *start_colour, int *end_colour,
 		int *resolution, char *pattern_config_usroption, int *repeat_cycle) {
 	char option;
-	int status,strt_success;;
+	int status,strt_success;
 	do {
 		PRINTF("\e[1;1H\e[2J");
 		PRINTF(
@@ -442,7 +550,12 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 		PRINTF("        B : BACK\n\r");
 		PRINTF("        N : HOME\n\n\n\r");
 		PRINTF("SELECT AN OPTION     :");
-		option = GETCHAR();
+		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		EnableIRQ(PRISMA_UART_IRQn);
+		while(!interrupt_flag) {
+		}
+		option = uart_read;
+		interrupt_flag = 0;
 		PRINTF("%c\r\n",option);
 		if (option == '1') {
 			do {
@@ -450,7 +563,10 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 				PRINTF("ENTER START COLOUR\r\n");
 				PRINTF("\033[16;5HR(0 to 7) : ");
 				while (1) {
-					SCANF("%c", &start_colour[0]);
+					while(!interrupt_flag) {
+					}
+					start_colour[0] = uart_read;
+					interrupt_flag = 0;
 					if((start_colour[0] >= 48) && (start_colour[0] <= 55)) {
 						start_colour[0] = start_colour[0] - 48;
 						PRINTF("\033[16;17H%d\r\n",start_colour[0]);
@@ -466,7 +582,10 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 				}
 				PRINTF("\033[17;5HG(0 to 7) : ");
 				while (1) {
-					SCANF("%c", &start_colour[1]);
+					while(!interrupt_flag) {
+					}
+					start_colour[1] = uart_read;
+					interrupt_flag = 0;
 					if((start_colour[1] >= 48) && (start_colour[1] <= 55)) {
 						start_colour[1] = start_colour[1] - 48;
 						PRINTF("\033[17;17H%d\r\n",start_colour[1]);
@@ -482,7 +601,10 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 				}
 				PRINTF("\033[18;5HB(0 to 3) : ");
 				while (1) {
-					SCANF("%c", &start_colour[2]);
+					while(!interrupt_flag) {
+					}
+					start_colour[2] = uart_read;
+					interrupt_flag = 0;
 					if((start_colour[2] >= 48) && (start_colour[2] <= 51)) {
 						start_colour[2] = start_colour[2] - 48;
 						PRINTF("\033[18;17H%d\r\n",start_colour[2]);
@@ -506,7 +628,10 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 				PRINTF("ENTER END COLOUR\r\n");
 				PRINTF("\033[16;5HR(0 to 7) : ");
 				while (1) {
-					SCANF("%c", &end_colour[0]);
+					while(!interrupt_flag) {
+					}
+					end_colour[0] = uart_read;
+					interrupt_flag = 0;
 					if((end_colour[0] >= 48) && (end_colour[0] <= 55)) {
 						end_colour[0] = end_colour[0] - 48;
 						PRINTF("\033[16;17H%d\r\n",end_colour[0]);
@@ -522,7 +647,10 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 				}
 				PRINTF("\033[17;5HG(0 to 7) : ");
 				while (1) {
-					SCANF("%c", &end_colour[1]);
+					while(!interrupt_flag) {
+					}
+					end_colour[1] = uart_read;
+					interrupt_flag = 0;
 					if ((end_colour[1] >= 48) && (end_colour[1] <= 55)) {
 						end_colour[1] = end_colour[1] - 48;
 						PRINTF("\033[17;17H%d\r\n",end_colour[1]);
@@ -538,7 +666,10 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 				}
 				PRINTF("\033[18;5HB(0 to 3) : ");
 				while (1) {
-					SCANF("%c", &end_colour[2]);
+					while(!interrupt_flag) {
+					}
+					end_colour[2] = uart_read;
+					interrupt_flag = 0;;
 					if((end_colour[2] >= 48) && (end_colour[2] <= 51)) {
 						end_colour[2] = end_colour[2] - 48;
 						PRINTF("\033[18;17H%d\r\n",end_colour[2]);
@@ -562,7 +693,10 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 				PRINTF("ENTER RESOLUTION COLOUR\r\n");
 				PRINTF("\033[16;5HR(0 to 7) : ");
 				while (1) {
-					SCANF("%c", &resolution[0]);
+					while(!interrupt_flag) {
+					}
+					resolution[0] = uart_read;
+					interrupt_flag = 0;
 					if ((resolution[0] >= 48) && (resolution[0] <= 55)) {
 						resolution[0] = resolution[0] - 48;
 						PRINTF("\033[16;17H%d\r\n",resolution[0]);
@@ -578,7 +712,10 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 				}
 				PRINTF("\033[17;5HG(0 to 7) : ");
 				while (1) {
-					SCANF("%c", &resolution[1]);
+					while(!interrupt_flag) {
+					}
+					resolution[1] = uart_read;
+					interrupt_flag = 0;
 					if ((resolution[1] >= 48) && (resolution[1] <= 55)) {
 						resolution[1] = resolution[1] - 48;
 						PRINTF("\033[17;17H%d\r\n",resolution[1]);
@@ -594,7 +731,10 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 				}
 				PRINTF("\033[18;5HB(0 to 3) : ");
 				while (1) {
-					SCANF("%c", &resolution[2]);
+					while(!interrupt_flag) {
+					}
+					resolution[2] = uart_read;
+					interrupt_flag = 0;
 					if((resolution[2] >= 48) && (resolution[2] <= 51)) {
 						resolution[2] = resolution[2] - 48;
 						PRINTF("\033[18;17H%d\r\n",resolution[2]);
@@ -614,23 +754,56 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 			status = 1;
 		} else if (option == '4') {
 			int RF_status;
+			int readed_cycle;
 			do {
-				PRINTF("\033[15;0H ENTER NEW REPEAT CYCLE(0 to 100)     :    ");
-				if(SCANF("%d", &*repeat_cycle)) {
-					PRINTF("\033[15;34H%d\r\n", *repeat_cycle);
-					if ((*repeat_cycle >= 0) && (*repeat_cycle <= 100)) {
-						PRINTF("\033[16;0 SUCCESSFULLY UPDATED......\r\n");
-						delay(10);
-						RF_status = 0;
-					} else {
-						PRINTF("\033[16;0H INVALID!!!\r\nTRY AGAIN...");
-						delay(10);
-						PRINTF("\033[16;0H                              ");
-						PRINTF("\033[17;0H                                                                                  ");
-						PRINTF("\033[15;0H                                                                                                               ");
-						PRINTF("\033[15;36H");
-						RF_status = 1;
+				int repat_cycle1 = 0;
+				PRINTF("\033[15;0HENTER NEW REPEAT CYCLE(0 to 100)     : ***");
+				for(int i=1;i <= 3;i++) {
+					PRINTF("\033[15;%dH",39+i);
+					while(!interrupt_flag) {
 					}
+					readed_cycle = uart_read;
+					interrupt_flag = 0;
+					if(i == 1) {
+						if((readed_cycle >= 48) && (readed_cycle <= 49)) {
+							readed_cycle = readed_cycle - 48;
+							PRINTF("%d",readed_cycle);
+							repat_cycle1 = repat_cycle1 + readed_cycle * 100;
+						} else {
+							PRINTF("\033[16;0HNOT VALID NUMBER!!!\r\n");
+							delay(10);
+							PRINTF("\033[16;0H                                            ");
+							i--;
+						}
+					} else if(i == 2) {
+						if((readed_cycle >= 48) && (readed_cycle <= 57)) {
+							readed_cycle = readed_cycle - 48;
+							PRINTF("%d",readed_cycle);
+							repat_cycle1 = repat_cycle1 + readed_cycle * 10;
+						} else {
+							PRINTF("\033[16;0HNOT VALID NUMBER!!!\r\n");
+							delay(10);
+							PRINTF("\033[16;0H                                            ");
+							i--;
+						}
+					} else if(i == 3) {
+						if((readed_cycle >= 48) && (readed_cycle <= 57)) {
+							readed_cycle = readed_cycle - 48;
+							PRINTF("%d\r\n",readed_cycle);
+							repat_cycle1 = repat_cycle1 + readed_cycle * 1;
+						} else {
+							PRINTF("\033[16;0HNOT VALID NUMBER!!!\r\n");
+							delay(10);
+							PRINTF("\033[16;0H                                            ");
+							i--;
+						}
+					} else ;
+					*repeat_cycle = repat_cycle1;
+				}
+				if ((*repeat_cycle >= 0) && (*repeat_cycle <= 100)) {
+					PRINTF("\033[16;0 SUCCESSFULLY UPDATED......\r\n");
+					delay(10);
+					RF_status = 0;
 				} else {
 					PRINTF("\033[16;0H INVALID!!!\r\nTRY AGAIN...");
 					delay(10);
@@ -650,6 +823,8 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 			*pattern_config_usroption = 'N';
 			status = 0;
 		}
+		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -668,7 +843,12 @@ int ModeSelect_screen(int *mode_usroption,int *mode_option_string_value,char *mo
 		PRINTF("    R      : MANUAL\n\n\n\r");
 		PRINTF("        B : BACK\n\r");
 		PRINTF("SELECT AN OPTION     :  ");
-		option = GETCHAR();
+		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		EnableIRQ(PRISMA_UART_IRQn);
+		while(!interrupt_flag) {
+		}
+		option = uart_read;
+		interrupt_flag = 0;
 		PRINTF("%c\r\n",option);
 		if ((option == 'q') || (option == 'Q')) {
 			*mode_usroption = 1;
@@ -707,6 +887,8 @@ int ModeSelect_screen(int *mode_usroption,int *mode_option_string_value,char *mo
 			status = 1;
 
 		}
+		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -730,7 +912,12 @@ int Find_colour_screen(int *find_colour,char *find_usroption) {
 				}
 			}
 		}
-		option = GETCHAR();
+		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		EnableIRQ(PRISMA_UART_IRQn);
+		while(!interrupt_flag) {
+		}
+		option = uart_read;
+		interrupt_flag = 0;
 		if((option == 't')||(option == 'T')) {
 			PRINTF("\033[14;0H                                   ");
 			PRINTF("\033[7;0HENTER THE COLOUR(R(0 to 7);G(0 to 7);B(0 to 3):\n\n\n\r");
@@ -799,6 +986,8 @@ int Find_colour_screen(int *find_colour,char *find_usroption) {
 			PRINTF("INVALID OPTION");
 			strt_success = 1;
 		}
+		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		DisableIRQ(PRISMA_UART_IRQn);
 	} while (strt_success);
 	return 1;
 }

@@ -233,7 +233,6 @@ int Master_UI() {
 
 				} else if(mode_option_string_value == 4) {                      // MANUAL validation
 				}
-				//implement queue send
 				QUEUE_SEND_BUFFER[0] = refresh_rate;
 				QUEUE_SEND_BUFFER[1] = colour_coding_scheme_queue_value;
 				QUEUE_SEND_BUFFER[2] = start_colour[0];
@@ -248,14 +247,8 @@ int Master_UI() {
 				QUEUE_SEND_BUFFER[11] = colour_change_rate;
 				QUEUE_SEND_BUFFER[12] = mode_option_string_value;
 				QUEUE_SEND_BUFFER[13] = repeat_cycle;
-				for(int i = 0;i <= 13;i++) {
-					PRINTF("queue data = %d\n\r",QUEUE_SEND_BUFFER[i]);
-				}
-
-
-				PRINTF("success");
-				delay(50);
-				break;
+				//implement queue send function here
+				//queue read function
 			}
 		} else if(master_home_usroption == 'D'){
 		} else if(master_home_usroption == 'F'){
