@@ -3,17 +3,11 @@
 #include "../PRISMA_SCREEN_INCLUDES/PRISMA_SCREEN.c"
 
 #define QUEUE_SEND_BUFFER_SIZE 14
+#define QUEUE_RECEIVE_BUFFER_SIZE 4
 
 int Master_UI() {
-	char master_home_usroption;
-	char edit_scrn_usroptn;
-	char system_config_user_option;
-	char colour_coding_scheme_useroptn;
 	char colour_coding_scheme_value[3] = {7,7,3};
-	char rate_config_useroptn;
 	char pattern_config_usroption;
-	char find_usroption;
-	char help_scrn_usroption;
 	char mode_option_string[10] = "AUTO UP";
 	int colour_coding_scheme_queue_value = 1;
 	int mode_option_string_value = 1;
@@ -24,11 +18,19 @@ int Master_UI() {
 	int refresh_rate = 5;
 	int colour_change_rate = 10;
 	int repeat_cycle = 5;
-	int mode_usroption = 1;
 	int QUEUE_SEND_BUFFER[QUEUE_SEND_BUFFER_SIZE];
+	int QUEUE_RECEIVE_BUFFER[QUEUE_RECEIVE_BUFFER_SIZE];
 
 	homescreen();
 	while(1) {
+		char master_home_usroption;
+		char system_config_user_option;
+		char edit_scrn_usroptn;
+		char colour_coding_scheme_useroptn;
+		char rate_config_useroptn;
+		char find_usroption;
+		char help_scrn_usroption;
+		int mode_usroption = 1;
 		Master_homescreen(&master_home_usroption,colour_coding_scheme_value,&refresh_rate,&colour_change_rate,start_colour,end_colour,resolution,mode_option_string,&repeat_cycle);
 		if(master_home_usroption == 'S') {
 			while(1) {
@@ -260,20 +262,35 @@ int Master_UI() {
 								if(colour_coding_scheme_useroptn == 'B') {
 									break;
 								} else if(colour_coding_scheme_useroptn == 'N') {
-									//implement return home operation
+									break;
 								}
+							}
+							if(colour_coding_scheme_useroptn == 'N') {
+								break;
 							}
 						} else if (system_config_user_option == '2') {
 							while (Rate_configuration_screen(&rate_config_useroptn,&refresh_rate,&colour_change_rate)) {
 								if(rate_config_useroptn == 'B') {
 									break;
 								} else if(rate_config_useroptn == 'N') {
+									break;
 									//implement return home operation
 								}
+							}
+							if(rate_config_useroptn == 'N') {
+								break;
 							}
 						} else if (system_config_user_option == 'B') {
 							break;
 						} else {
+						}
+						if(colour_coding_scheme_useroptn == 'N') {
+							break;
+							//return home operation
+						}
+						if(rate_config_useroptn == 'N') {
+							break;
+							//return home operation
 						}
 					}
 				} else if (edit_scrn_usroptn == '2') {
@@ -282,11 +299,24 @@ int Master_UI() {
 							break;
 						} else if(pattern_config_usroption == 'N') {
 							//implement return home operation
+							break;
 						}
+					}
+					if(pattern_config_usroption == 'N') {
+						//implement return home operation
+						break;
 					}
 				} else if (edit_scrn_usroptn == 'B') {
 					break;
 				} else ;
+				if(rate_config_useroptn == 'N') {
+					break;
+					//return home operation
+				}
+				if(colour_coding_scheme_useroptn == 'N') {
+					break;
+					//return home operation
+				}
 			}
 		} else if (master_home_usroption == 'X'){
 			while(ModeSelect_screen(&mode_usroption,&mode_option_string_value,mode_option_string)){
@@ -299,6 +329,8 @@ int Master_UI() {
 				if(find_usroption == 'B') {
 					break;
 				} else if (find_usroption == 'S') {
+					PRINTF("\033[13;9Hqueue send is done here");
+					delay(10);
 					//implement send function for search
 				} else ;
 			}

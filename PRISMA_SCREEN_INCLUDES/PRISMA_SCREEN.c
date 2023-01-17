@@ -312,19 +312,21 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,int *colour_
 			delay(9);
 			status = 1;
 		} else if (*colour_coding_scheme_useroptn == '2') {
-			*colour_coding_scheme_queue_value = 2;
-			colour_coding_scheme_value[0] = 4;
-			colour_coding_scheme_value[1] = 4;
-			colour_coding_scheme_value[2] = 4;
-			PRINTF("SUCCESSFULLY UPDATED");
+			//			*colour_coding_scheme_queue_value = 2;
+			//			colour_coding_scheme_value[0] = 4;
+			//			colour_coding_scheme_value[1] = 4;
+			//			colour_coding_scheme_value[2] = 4;
+			//			PRINTF("SUCCESSFULLY UPDATED");
+			PRINTF("THIS IS SCHEME IS NOT AVAILABLE NOW");
 			delay(9);
 			status = 1;
 		} else if (*colour_coding_scheme_useroptn == '3') {
-			*colour_coding_scheme_queue_value = 3;
-			colour_coding_scheme_value[0] = 8;
-			colour_coding_scheme_value[1] = 8;
-			colour_coding_scheme_value[2] = 8;
-			PRINTF("SUCCESSFULLY UPDATED");
+			//			*colour_coding_scheme_queue_value = 3;
+			//			colour_coding_scheme_value[0] = 8;
+			//			colour_coding_scheme_value[1] = 8;
+			//			colour_coding_scheme_value[2] = 8;
+			//			PRINTF("SUCCESSFULLY UPDATED");
+			PRINTF("THIS IS SCHEME IS NOT AVAILABLE NOW");
 			delay(9);
 			status = 1;
 		} else if ((*colour_coding_scheme_useroptn == 'B')
@@ -822,6 +824,7 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 		} else if ((option == 'n') || (option == 'N')) {
 			*pattern_config_usroption = 'N';
 			status = 0;
+			return 0;
 		}
 		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
 		DisableIRQ(PRISMA_UART_IRQn);
@@ -901,7 +904,7 @@ int Find_colour_screen(int *find_colour,char *find_usroption) {
 		PRINTF("************************ FIND COLOUR ************************\n\n\r");
 		PRINTF("\033[4;0H       T : SEARCH\n\r");
 		PRINTF("\033[5;0H       B : BACK\n\r");
-		PRINTF("\033[7;0HCURRENTLY DISPLAYING COLOUR CODE     : ");
+		PRINTF("\033[6;0HCURRENTLY DISPLAYING COLOUR CODE     : ");
 		for (int i = 0; i <= 3; i++) {
 			if (i == 3)
 				PRINTF("\r\n");
@@ -915,67 +918,86 @@ int Find_colour_screen(int *find_colour,char *find_usroption) {
 		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
 		EnableIRQ(PRISMA_UART_IRQn);
 		while(!interrupt_flag) {
+			PRINTF("\033[8;0HPRESS 'T' TO SEARCH");
+			delay(5);
+			PRINTF("\033[8;0H                   ");
+			delay(5);
 		}
+		PRINTF("\033[4;0H                                       \n\r");
+		PRINTF("\033[5;0H                                       \n\r");
+		PRINTF("\033[6;0H                                                                   ");
 		option = uart_read;
 		interrupt_flag = 0;
 		if((option == 't')||(option == 'T')) {
 			PRINTF("\033[14;0H                                   ");
-			PRINTF("\033[7;0HENTER THE COLOUR(R(0 to 7);G(0 to 7);B(0 to 3):\n\n\n\r");
-			PRINTF("\033[8;5HR : ");
-			PRINTF("\033[9;5HG : ");
-			PRINTF("\033[10;5HB : ");
-			PRINTF("\033[8;9H");
+			PRINTF("\033[4;0HENTER THE COLOUR(R(0 to 7);G(0 to 7);B(0 to 3):\n\n\n\r");
+			PRINTF("\033[5;5HR : ");
+			PRINTF("\033[6;5HG : ");
+			PRINTF("\033[7;5HB : ");
+			PRINTF("\033[5;9H");
 			while (1) {
-				SCANF("%d", &find_colour[0]);
-				PRINTF("\033[8;9H%d\r\n",find_colour[0]);
-				if ((find_colour[0] >= 0) && (find_colour[0] <= 7)) {
+				while(!interrupt_flag) {
+				}
+				find_colour[0] = uart_read;
+				interrupt_flag = 0;
+				if((find_colour[0] >= 48) && (find_colour[0] <= 55)) {
+					find_colour[0] = find_colour[0] - 48;
+					PRINTF("\033[5;9H%d\r\n",find_colour[0]);
 					break;
 				} else {
-					PRINTF("\033[11;0HINVALID ENTRY");
+					PRINTF("\033[13;9HINVALID ENTRY");
 					delay(10);
-					PRINTF("\033[11;0H                            ");
-					PRINTF("\033[8;9H                            ");
-					PRINTF("\033[8;9H");
+					PRINTF("\033[13;9H                            ");
+					PRINTF("\033[5;9H                                 ");
+					PRINTF("\033[5;9H");
 					continue;
 				}
 			}
-			PRINTF("\033[9;5HG : ");
+			PRINTF("\033[6;5HG : ");
 			while (1) {
-				SCANF("%d", &find_colour[1]);
-				PRINTF("\033[9;9H%d\r\n",find_colour[1]);
-				if ((find_colour[1] >= 0) && (find_colour[1] <= 7)) {
+				while(!interrupt_flag) {
+				}
+				find_colour[1] = uart_read;
+				interrupt_flag = 0;
+				if((find_colour[1] >= 48) && (find_colour[1] <= 55)) {
+					find_colour[1] = find_colour[1] - 48;
+					PRINTF("\033[6;9H%d\r\n",find_colour[1]);
 					break;
 				} else {
-					PRINTF("\033[11;0HINVALID ENTRY");
+					PRINTF("\033[13;9HINVALID ENTRY");
 					delay(10);
-					PRINTF("\033[11;0H                            ");
-					PRINTF("\033[9;9H                               ");
-					PRINTF("\033[9;9H");
+					PRINTF("\033[13;9H                            ");
+					PRINTF("\033[6;9H                                 ");
+					PRINTF("\033[6;9H");
 					continue;
 				}
 			}
-			PRINTF("\033[10;5HB : ");
+			PRINTF("\033[7;5HB : ");
 			while (1) {
-				SCANF("%d", &find_colour[2]);
-				PRINTF("\033[10;9H%d\r\n",find_colour[2]);
-				if ((find_colour[2] >= 0) && (find_colour[2] <= 3)) {
-					*find_usroption = 'S';
-					strt_success = 0;
+				while(!interrupt_flag) {
+				}
+				find_colour[2] = uart_read;
+				interrupt_flag = 0;
+				if((find_colour[2] >= 48) && (find_colour[2] <= 51)) {
+					find_colour[2] = find_colour[2] - 48;
+					PRINTF("\033[7;9H%d\r\n",find_colour[2]);
 					break;
 				} else {
-					PRINTF("\033[11;0HINVALID ENTRY");
+					PRINTF("\033[13;9HINVALID ENTRY");
 					delay(10);
-					PRINTF("\033[11;0H                            ");
-					PRINTF("\033[10;9H                                      ");
-					PRINTF("\033[10;9H");
+					PRINTF("\033[13;9H                            ");
+					PRINTF("\033[7;9H                                 ");
+					PRINTF("\033[7;9H");
 					continue;
 				}
 			}
 			PRINTF("\033[14;0HNote : OBSERVE THE LED\n\n\n\r");
 			delay(10);
-			PRINTF("\033[8;9H                            ");
-			PRINTF("\033[9;9H                            ");
-			PRINTF("\033[10;9H                            ");
+			PRINTF("\033[5;9H                            ");
+			PRINTF("\033[6;9H                            ");
+			PRINTF("\033[7;9H                            ");
+			*find_usroption = 'S';
+			strt_success = 0;
 		} else if ((option == 'b') || (option == 'B')) {
 			*find_usroption = 'B';
 			find_colour[0] = 0;
@@ -993,6 +1015,7 @@ int Find_colour_screen(int *find_colour,char *find_usroption) {
 }
 
 void Slave_homescreen(void) {
+	PRINTF("\e[1;1H\e[2J");
 	PRINTF(
 			"************************************************************** WELCOME TO PRISMA **************************************************************\n\r");
 	PRINTF(
@@ -1022,7 +1045,26 @@ void Slave_homescreen_failed(void) {
 }
 
 int Help_screen(char *help_scrn_usroption) {
-	PRINTF("WAITING FOR MASTER.......");
+	int status = 1;
+	do {
+		PRINTF("\e[1;1H\e[2J");
+		PRINTF("WAITING FOR MASTER.......");
+		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		EnableIRQ(PRISMA_UART_IRQn);
+		while(!interrupt_flag) {
+		}
+		*help_scrn_usroption = uart_read;
+		interrupt_flag = 0;
+		if((*help_scrn_usroption == 'q') || (*help_scrn_usroption == 'Q')) {
+			*help_scrn_usroption = 'Q';
+			status = 0;
+		} else {
+			PRINTF("invalid option entered");
+			status = 1;
+		}
+		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		DisableIRQ(PRISMA_UART_IRQn);
+	} while(status);
 	return 1;
 }
 
