@@ -156,11 +156,29 @@ BOARD_InitPins:
  * END ****************************************************************************************************************/
 void BOARD_InitPins(void)
 {
-    /* Port A Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortA);
+	/* Port A Clock Gate Control: Clock enabled */
+	CLOCK_EnableClock(kCLOCK_PortA);
+    /* Port B Clock Gate Control: Clock enabled */
+    CLOCK_EnableClock(kCLOCK_PortB);
+	 /* Port C Clock Gate Control: Clock enabled */
+	CLOCK_EnableClock(kCLOCK_PortC);
+    /* Port D Clock Gate Control: Clock enabled */
+	CLOCK_EnableClock(kCLOCK_PortD);
+
 
     /* PORTA2 (pin 36) is configured as TRACE_SWO */
     PORT_SetPinMux(PORTA, 2U, kPORT_MuxAlt7);
+
+    /* PORTB16 (pin 62) is configured as UART0_RX */
+    PORT_SetPinMux(PORTB, 16U, kPORT_MuxAlt3);
+
+    /* PORTB17 (pin 63) is configured as UART0_TX */
+    PORT_SetPinMux(PORTB, 17U, kPORT_MuxAlt3);
+
+    PORT_SetPinMux(PORTD, 1U, kPORT_MuxAlt4); //PORTD0   is configured as FTM0_CH0
+    PORT_SetPinMux(PORTD, 2U, kPORT_MuxAlt4); //PORTD2  is configured as FTM0_CH2
+    PORT_SetPinMux(PORTD, 3U, kPORT_MuxAlt4); //PORTD3   is configured as FTM0_CH3
+    PORT_SetPinMux(PORTD, 0U, kPORT_MuxAsGpio);
 
     PORTA->PCR[2] = ((PORTA->PCR[2] &
                       /* Mask bits to zero which are setting */
@@ -177,14 +195,6 @@ void BOARD_InitPins(void)
                       * is configured as a digital output. */
                      | PORT_PCR_DSE(kPORT_LowDriveStrength));
 
-    /* Port B Clock Gate Control: Clock enabled */
-    CLOCK_EnableClock(kCLOCK_PortB);
-
-    /* PORTB16 (pin 62) is configured as UART0_RX */
-    PORT_SetPinMux(PORTB, 16U, kPORT_MuxAlt3);
-
-    /* PORTB17 (pin 63) is configured as UART0_TX */
-    PORT_SetPinMux(PORTB, 17U, kPORT_MuxAlt3);
 
     SIM->SOPT5 = ((SIM->SOPT5 &
                    /* Mask bits to zero which are setting */
@@ -193,6 +203,23 @@ void BOARD_InitPins(void)
                   /* UART 0 transmit data source select: UART0_TX pin. */
                   | SIM_SOPT5_UART0TXSRC(SOPT5_UART0TXSRC_UART_TX));
 
+    CLOCK_EnableClock(kCLOCK_PortD);
+               const port_pin_config_t gpio_jumper = {/* Internal pull-up resistor is enabled */
+                                                                  kPORT_PullUp,
+                                                                  /* Fast slew rate is configured */
+                                                                  kPORT_FastSlewRate,
+                                                                  /* Passive filter is disabled */
+                                                                  kPORT_PassiveFilterDisable,
+                                                                  /* Open drain is disabled */
+                                                                  kPORT_OpenDrainDisable,
+                                                                  /* High drive strength is configured */
+                                                                  kPORT_HighDriveStrength,
+                                                                  /* Pin is configured as PTA4 */
+                                                                  kPORT_MuxAsGpio,
+                                                                  /* Pin Control Register fields [15:0] are not locked */
+                                                                  kPORT_UnlockRegister};
+                   /* PORTA4 (pin 38) is configured as PTA4 */
+                   PORT_SetPinConfig(PORTD, 0U, &gpio_jumper);
 }
 
 /* clang-format off */

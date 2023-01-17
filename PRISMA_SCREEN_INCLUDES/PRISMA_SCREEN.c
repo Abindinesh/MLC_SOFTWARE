@@ -140,7 +140,138 @@ int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_val
 				" SLAVE STATUS                       : < CONNECTING/CONNECTED/DISCONNECTED >\n\r");
 		PRINTF(
 				" MODE OF WORKING                    : < MASTER-SLAVE/STAND ALONE >\n\r");
-		PRINTF(" CURRENT LED COLOUR                 : 0,0,0\n\r");
+		PRINTF(" CURRENT LED COLOUR                 : \n\r");
+		PRINTF(" NO OF CYCLES COMPLETED             : 0\n\n\r");
+		PRINTF("      S     : START/STOP\n\r");
+		PRINTF("      D     : PAUSE/RESUME\n\r");
+		PRINTF("      F     : EDIT CONFIGURATION\n\r");
+		PRINTF("      X     : MODE\n\r");
+		PRINTF("      V     : FIND COLOUR\n\r");
+		PRINTF("      H     : HELP?\n\n\n\r");
+		PRINTF("ENTER YOUR OPTION :");
+		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		EnableIRQ(PRISMA_UART_IRQn);
+		while(!interrupt_flag) {
+		}
+		*Master_Home_Usroption = uart_read;
+		interrupt_flag = 0;
+		PRINTF("%c\r\n", *Master_Home_Usroption);
+		delay(2);
+		if ((*Master_Home_Usroption == 's')
+				|| (*Master_Home_Usroption == 'S')) {
+			*Master_Home_Usroption = 'S';
+			status = 0;
+		} else if ((*Master_Home_Usroption == 'd')
+				|| (*Master_Home_Usroption == 'D')) {
+			*Master_Home_Usroption = 'D';
+			status = 0;
+
+		} else if ((*Master_Home_Usroption == 'f')
+				|| (*Master_Home_Usroption == 'F')) {
+			*Master_Home_Usroption = 'F';
+			status = 0;
+
+		} else if ((*Master_Home_Usroption == 'x')
+				|| (*Master_Home_Usroption == 'X')) {
+			*Master_Home_Usroption = 'X';
+			status = 0;
+
+		} else if ((*Master_Home_Usroption == 'v')
+				|| (*Master_Home_Usroption == 'V')) {
+			*Master_Home_Usroption = 'V';
+			status = 0;
+
+		} else if ((*Master_Home_Usroption == 'h')
+				|| (*Master_Home_Usroption == 'H')) {
+			*Master_Home_Usroption = 'H';
+			status = 0;
+
+		} else {
+			PRINTF("INVALID OPTION TRIED!!!\n\n\rTRY AGAIN...\r\n");
+			delay(9);
+			status = 1;
+		}
+		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
+		DisableIRQ(PRISMA_UART_IRQn);
+	} while (status);
+	return 1;
+}
+
+int Master_homescreen1(char *Master_Home_Usroption,char *colour_coding_scheme_value,int *refresh_rate,int *colour_change_rate,int *start_colour, int *end_colour,int *resolution,char *mode_option_string,int *repeat_cycle,int *QUEUE_RECEIVE_BUFFER) {
+	int status = -1;
+	do {
+		PRINTF("\e[1;1H\e[2J");
+		PRINTF(
+				"************************************************************** WELCOME TO PRISMA **************************************************************\n\r");
+		PRINTF(
+				"                                                     GENERATE YOUR OWN LED COLOUR PATTERN\n\n\r");
+		PRINTF("         **CURRENT CONFIGURATION**\n\n\r");
+		PRINTF("...SYSTEM CONFIGURATION...\n\n\r");
+		PRINTF(" CONFIGURED AS                      : MASTER\n\r");
+		PRINTF(" RGB CODING SCHEME                  : ");
+		for (int i = 0; i <= 3; i++) {
+			if (i == 3)
+				PRINTF("\r\n");
+			else {
+				PRINTF("%d", colour_coding_scheme_value[i]);
+				if (i < 2) {
+					PRINTF(",");
+				}
+			}
+		}
+		PRINTF(" REFRESH RATE                       : %d\n\r",*refresh_rate);
+		PRINTF(" COLOUR CHANGE RATE                 : %d\n\n\r",*colour_change_rate);
+		PRINTF("...PATTERN CONFIGURATION...\n\n\r");
+		PRINTF(" START COLOUR                       : ");
+		for (int i = 0; i <= 3; i++) {
+			if (i == 3)
+				PRINTF("\r\n");
+			else {
+				PRINTF("%d", start_colour[i]);
+				if (i < 2) {
+					PRINTF(",");
+				}
+			}
+		}
+		PRINTF(" END COLOUR                         : ");
+		for (int i = 0; i <= 3; i++) {
+			if (i == 3)
+				PRINTF("\r\n");
+			else {
+				PRINTF("%d", end_colour[i]);
+				if (i < 2) {
+					PRINTF(",");
+				}
+			}
+		}
+		PRINTF(" RESOLUTION                         : ");
+		for (int i = 0; i <= 3; i++) {
+			if (i == 3)
+				PRINTF("\r\n");
+			else {
+				PRINTF("%d", resolution[i]);
+				if (i < 2) {
+					PRINTF(",");
+				}
+			}
+		}
+		PRINTF(" MODE, CYCLE                        : %s, %d\n\n\r",mode_option_string,*repeat_cycle);
+		PRINTF("                **STATUS**\n\n\r");
+		PRINTF(
+				" SLAVE STATUS                       : < CONNECTING/CONNECTED/DISCONNECTED >\n\r");
+		PRINTF(
+				" MODE OF WORKING                    : < MASTER-SLAVE/STAND ALONE >\n\r");
+		PRINTF(" CURRENT LED COLOUR                 : ");
+		for (int i = 0; i <= 3; i++) {
+			if (i == 3)
+				PRINTF("\r\n");
+			else {
+				PRINTF("%d", QUEUE_RECEIVE_BUFFER[i]);
+				if (i < 2) {
+					PRINTF(",");
+				}
+			}
+		}
 		PRINTF(" NO OF CYCLES COMPLETED             : 0\n\n\r");
 		PRINTF("      S     : START/STOP\n\r");
 		PRINTF("      D     : PAUSE/RESUME\n\r");

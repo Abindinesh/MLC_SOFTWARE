@@ -32,8 +32,14 @@
  * @file    PRISMA_SCREEN_VALIDATION.c
  * @brief   Application entry point.
  */
-
+/* FreeRTOS kernel includes. */
+#include "FreeRTOS.h"
+#include "task.h"
+#include "queue.h"
+#include "timers.h"
+/*Free_scale includes*/
 #include <stdio.h>
+#include <math.h>
 #include "fsl_debug_console.h"
 #include "board.h"
 #include "peripherals.h"
@@ -44,7 +50,19 @@
 
 #include "../PRISMA_VALIDATION/PRISMA_VALIDATION.c"
 
+//QueueHandle_t config_queue = NULL;
+//QueueHandle_t response_queue = NULL;
 
+/* Task priorities. */
+#define get_configuration_PRIORITY (configMAX_PRIORITIES - 1)
+#define pattern_generator_PRIORITY (configMAX_PRIORITIES - 1)
+
+
+/*******************************************************************************
+ * Prototypes
+ ************************************* *****************************************/
+static void get_configuration(void *pvParameters);
+static void pattern_generator(void *pvParameters);
 
 /* TODO: insert other include files here. */
 
@@ -53,7 +71,7 @@
 /*
  * @brief   Application entry point.
  */
-int Master_UI();
+
 
 int main(void) {
 
@@ -68,39 +86,105 @@ int main(void) {
 	BOARD_InitDebugConsole();
 #endif
 
-    uart_config_t config;
+	uart_config_t config;
 
-    BOARD_InitBootPins();
-    BOARD_InitBootClocks();
+	BOARD_InitBootPins();
+	BOARD_InitBootClocks();
 
-    /*
-     * config.baudRate_Bps = 115200U;
-     * config.parityMode = kUART_ParityDisabled;
-     * config.stopBitCount = kUART_OneStopBit;
-     * config.txFifoWatermark = 0;
-     * config.rxFifoWatermark = 1;
-     * config.enableTx = false;
-     * config.enableRx = false;
-     */
-    UART_GetDefaultConfig(&config);
-    config.baudRate_Bps = BOARD_DEBUG_UART_BAUDRATE;
-    config.enableTx     = true;
-    config.enableRx     = true;
+	/*
+	 * config.baudRate_Bps = 115200U;
+	 * config.parityMode = kUART_ParityDisabled;
+	 * config.stopBitCount = kUART_OneStopBit;
+	 * config.txFifoWatermark = 0;
+	 * config.rxFifoWatermark = 1;
+	 * config.enableTx = false;
+	 * config.enableRx = false;
+	 */
+	UART_GetDefaultConfig(&config);
+	config.baudRate_Bps = BOARD_DEBUG_UART_BAUDRATE;
+	config.enableTx     = true;
+	config.enableRx     = true;
 
-    UART_Init(PRISMA_UART, &config, PRISMA_UART_CLK_FREQ);
+	UART_Init(PRISMA_UART, &config, PRISMA_UART_CLK_FREQ);
 
-	if (1) {
-		Master_UI();
-
+	config_queue = xQueueCreate(2, sizeof(int) * 14);
+	if (config_queue != NULL) {
+		vQueueAddToRegistry(config_queue, "int *config_bufferLogQ_1");
 	}
-	else
-		Slave_UI();
+	response_queue = xQueueCreate(1, sizeof(int) * 4);
+	if (response_queue != NULL) {
+		vQueueAddToRegistry(response_queue, "int *config_bufferLogQ_2");
+	}
+	if (xTaskCreate(get_configuration,
+			"Task 1_Master_Get_configuration",
+			configMINIMAL_STACK_SIZE + 100, NULL,
+			get_configuration_PRIORITY, NULL) != pdPASS) {
+		//PRINTF("Task1 creation failed!.\r\n");
+		update_error(task_fail);
+		while (1)
+			;
+	}
+	if (xTaskCreate(pattern_generator,
+			"Task 1_Master_Get_configuration",
+			configMINIMAL_STACK_SIZE + 100, NULL,
+			get_configuration_PRIORITY, NULL) != pdPASS) {
+		//PRINTF("Task1 creation failed!.\r\n");
+		update_error(task_fail);
+		while (1)
+			;
+	}
+	vTaskStartScheduler();
+	for (;;)
+		;
 
 	return 0;
 }
 
+static void get_configuration(void *pvParameters) {
+	int configuration_flag;
+	if (GPIO_PinRead(GPIOD, 0U) == 1U)
+		configuration_flag = 1;
+	else
+		configuration_flag = 0;
+	while(1) {
+		if (configuration_flag == 1) {
+			Master_UI();
+		} else
+			Slave_UI() ;
+	}
+}
 
+static void pattern_generator(void *pvParameters) {
+	//Get pit clock
 
+	int control_buffer[14];
+	int config_buffer[14];//={0, 's', 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+	while (xQueuePeek(config_queue, control_buffer, 0) != pdTRUE) {
+		//PRINTF(" \r\nREADY\r\n");
+		__asm("NOP");
+	}
+	while (1) {
+		if (xQueuePeek(config_queue, control_buffer, 0) == pdTRUE) {
+			if (control_buffer[0] != 0) {
+				if (xQueueReceive(config_queue, control_buffer, 0) == pdTRUE) {
+					//PRINTF("Received from task 1");
+					for (int i = 0; i <= 13; i++) {
+						config_buffer[i] = control_buffer[i];
+					}
+				}
+			}
+		}
+		if (config_buffer[_MODE_] == 1) {
+			Auto_up(config_buffer, control_buffer);
+		} else if (config_buffer[_MODE_] == 2) {
+			Auto_down(config_buffer, control_buffer);
+		} else if (config_buffer[_MODE_] == 3) {
+			Auto_up_down(config_buffer, control_buffer);
+		} else if (config_buffer[ _MODE_] == 4) {
+			Manual_mode(config_buffer, control_buffer);
+		}
+	}
+}
 
 
 

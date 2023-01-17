@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "fsl_debug_console.h"
 #include "../PRISMA_SCREEN_INCLUDES/PRISMA_SCREEN.c"
+#include "../PATTERN/PRISMA_PATTERN.c"
 
 #define QUEUE_SEND_BUFFER_SIZE 14
 #define QUEUE_RECEIVE_BUFFER_SIZE 4
@@ -16,8 +17,8 @@ int Master_UI() {
 	int resolution[3] = {1,1,1};
 	int find_colour[3] = {0,0,0};
 	int refresh_rate = 5;
-	int colour_change_rate = 10;
-	int repeat_cycle = 5;
+	int colour_change_rate = 100;
+	int repeat_cycle = 2;
 	int QUEUE_SEND_BUFFER[QUEUE_SEND_BUFFER_SIZE];
 	int QUEUE_RECEIVE_BUFFER[QUEUE_RECEIVE_BUFFER_SIZE];
 
@@ -33,6 +34,7 @@ int Master_UI() {
 		int mode_usroption = 1;
 		Master_homescreen(&master_home_usroption,colour_coding_scheme_value,&refresh_rate,&colour_change_rate,start_colour,end_colour,resolution,mode_option_string,&repeat_cycle);
 		if(master_home_usroption == 'S') {
+			interrupt_flag = 0;
 			while(1) {
 				int send_status_flag;
 				if (mode_option_string_value == 1) {    //validation for AUTO UP
@@ -250,6 +252,22 @@ int Master_UI() {
 				QUEUE_SEND_BUFFER[12] = mode_option_string_value;
 				QUEUE_SEND_BUFFER[13] = repeat_cycle;
 				//implement queue send function here
+				if(xQueueSend(config_queue,QUEUE_SEND_BUFFER, 0) != pdPASS){
+					PRINTF("QUEUE SEND FAILED1\r\n");
+				}
+				delay_pattern(800000);
+				QUEUE_SEND_BUFFER[0] = 0;
+				QUEUE_SEND_BUFFER[1] = 's';
+				if(xQueueSend(config_queue,QUEUE_SEND_BUFFER, 0) != pdPASS){
+					PRINTF("QUEUE SEND FAILED2\r\n");
+				}
+				while(!interrupt_flag) {
+					if(xQueueReceive(response_queue,QUEUE_RECEIVE_BUFFER, 0) == pdPASS){
+						PRINTF("QUEUE RECEIVE FAILED2\r\n");
+					}
+					Master_homescreen1(&master_home_usroption,colour_coding_scheme_value,&refresh_rate,&colour_change_rate,start_colour,end_colour,resolution,mode_option_string,&repeat_cycle,QUEUE_RECEIVE_BUFFER);
+				}
+				break;
 				//queue read function
 			}
 		} else if(master_home_usroption == 'D'){
