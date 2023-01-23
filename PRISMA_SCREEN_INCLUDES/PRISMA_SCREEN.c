@@ -4,6 +4,8 @@
 #include "clock_config.h"
 #include "board.h"
 #include "fsl_uart.h"
+#include "../PATTERN/PRISMA_PATTERN.c"
+#include "queue.h"
 
 /*******************************************************************************
  * Definitions
@@ -17,8 +19,23 @@
 #define PRISMA_RING_BUFFER_SIZE 16
 #define gotoxy(x,y) PRINTF("\033[%d;%dH", (y), (x))
 
+#define REFRESH_RATE 0
+#define COLOUR_CODING_SCHEME 1
+#define START_RED 2
+#define START_GREEN 3
+#define START_BLUE 4
+#define END_RED 5
+#define END_GREEN 6
+#define END_BLUE 7
+#define STEP_RED 8
+#define STEP_GREEN 9
+#define STEP_BLUE 10
+#define CHANGE_RATE 11
+#define MODE 12
+#define CYCLE 13
+
 int interrupt_flag = 0;
-char uart_read = 0;
+char uart_read;
 void PRISMA_UART_IRQHandler(void) {
 	if ((kUART_RxDataRegFullFlag | kUART_RxOverrunFlag) & UART_GetStatusFlags(PRISMA_UART)) {
 		interrupt_flag = 1;
@@ -76,7 +93,7 @@ void homescreen(void) {
 	delay(20);
 }
 
-int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_value,int *refresh_rate,int *colour_change_rate,int *start_colour, int *end_colour,int *resolution,char *mode_option_string,int *repeat_cycle) {
+int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_value,int *refresh_rate,int *colour_change_rate,int *start_colour, int *end_colour,int *resolution,char *mode_option_string,int *repeat_cycle, char *Hand_Shake) {
 	int status = -1;
 	do {
 		PRINTF("\e[1;1H\e[2J");
@@ -139,7 +156,8 @@ int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_val
 		PRINTF(
 				" SLAVE STATUS                       : < CONNECTING/CONNECTED/DISCONNECTED >\n\r");
 		PRINTF(
-				" MODE OF WORKING                    : < MASTER-SLAVE/STAND ALONE >\n\r");
+				" MODE OF WORKING                    : < %s >\n\r",Hand_Shake);
+
 		PRINTF(" CURRENT LED COLOUR                 : \n\r");
 		PRINTF(" NO OF CYCLES COMPLETED             : 0\n\n\r");
 		PRINTF("      S     : START/STOP\n\r");
@@ -149,8 +167,6 @@ int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_val
 		PRINTF("      V     : FIND COLOUR\n\r");
 		PRINTF("      H     : HELP?\n\n\n\r");
 		PRINTF("ENTER YOUR OPTION :");
-		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		EnableIRQ(PRISMA_UART_IRQn);
 		while(!interrupt_flag) {
 		}
 		*Master_Home_Usroption = uart_read;
@@ -191,77 +207,13 @@ int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_val
 			delay(9);
 			status = 1;
 		}
-		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
 
-int Master_homescreen1(char *Master_Home_Usroption,char *colour_coding_scheme_value,int *refresh_rate,int *colour_change_rate,int *start_colour, int *end_colour,int *resolution,char *mode_option_string,int *repeat_cycle,int *QUEUE_RECEIVE_BUFFER) {
-	int status = -1;
-	do {
-		PRINTF("\e[1;1H\e[2J");
-		PRINTF(
-				"************************************************************** WELCOME TO PRISMA **************************************************************\n\r");
-		PRINTF(
-				"                                                     GENERATE YOUR OWN LED COLOUR PATTERN\n\n\r");
-		PRINTF("         **CURRENT CONFIGURATION**\n\n\r");
-		PRINTF("...SYSTEM CONFIGURATION...\n\n\r");
-		PRINTF(" CONFIGURED AS                      : MASTER\n\r");
-		PRINTF(" RGB CODING SCHEME                  : ");
-		for (int i = 0; i <= 3; i++) {
-			if (i == 3)
-				PRINTF("\r\n");
-			else {
-				PRINTF("%d", colour_coding_scheme_value[i]);
-				if (i < 2) {
-					PRINTF(",");
-				}
-			}
-		}
-		PRINTF(" REFRESH RATE                       : %d\n\r",*refresh_rate);
-		PRINTF(" COLOUR CHANGE RATE                 : %d\n\n\r",*colour_change_rate);
-		PRINTF("...PATTERN CONFIGURATION...\n\n\r");
-		PRINTF(" START COLOUR                       : ");
-		for (int i = 0; i <= 3; i++) {
-			if (i == 3)
-				PRINTF("\r\n");
-			else {
-				PRINTF("%d", start_colour[i]);
-				if (i < 2) {
-					PRINTF(",");
-				}
-			}
-		}
-		PRINTF(" END COLOUR                         : ");
-		for (int i = 0; i <= 3; i++) {
-			if (i == 3)
-				PRINTF("\r\n");
-			else {
-				PRINTF("%d", end_colour[i]);
-				if (i < 2) {
-					PRINTF(",");
-				}
-			}
-		}
-		PRINTF(" RESOLUTION                         : ");
-		for (int i = 0; i <= 3; i++) {
-			if (i == 3)
-				PRINTF("\r\n");
-			else {
-				PRINTF("%d", resolution[i]);
-				if (i < 2) {
-					PRINTF(",");
-				}
-			}
-		}
-		PRINTF(" MODE, CYCLE                        : %s, %d\n\n\r",mode_option_string,*repeat_cycle);
-		PRINTF("                **STATUS**\n\n\r");
-		PRINTF(
-				" SLAVE STATUS                       : < CONNECTING/CONNECTED/DISCONNECTED >\n\r");
-		PRINTF(
-				" MODE OF WORKING                    : < MASTER-SLAVE/STAND ALONE >\n\r");
-		PRINTF(" CURRENT LED COLOUR                 : ");
+int Master_homescreen_update(int *QUEUE_RECEIVE_BUFFER) {
+		PRINTF("\033[24;36H"            );
+		PRINTF("\033[24;39H");
 		for (int i = 0; i <= 3; i++) {
 			if (i == 3)
 				PRINTF("\r\n");
@@ -272,59 +224,7 @@ int Master_homescreen1(char *Master_Home_Usroption,char *colour_coding_scheme_va
 				}
 			}
 		}
-		PRINTF(" NO OF CYCLES COMPLETED             : 0\n\n\r");
-		PRINTF("      S     : START/STOP\n\r");
-		PRINTF("      D     : PAUSE/RESUME\n\r");
-		PRINTF("      F     : EDIT CONFIGURATION\n\r");
-		PRINTF("      X     : MODE\n\r");
-		PRINTF("      V     : FIND COLOUR\n\r");
-		PRINTF("      H     : HELP?\n\n\n\r");
-		PRINTF("ENTER YOUR OPTION :");
-		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		EnableIRQ(PRISMA_UART_IRQn);
-		while(!interrupt_flag) {
-		}
-		*Master_Home_Usroption = uart_read;
-		interrupt_flag = 0;
-		PRINTF("%c\r\n", *Master_Home_Usroption);
-		delay(2);
-		if ((*Master_Home_Usroption == 's')
-				|| (*Master_Home_Usroption == 'S')) {
-			*Master_Home_Usroption = 'S';
-			status = 0;
-		} else if ((*Master_Home_Usroption == 'd')
-				|| (*Master_Home_Usroption == 'D')) {
-			*Master_Home_Usroption = 'D';
-			status = 0;
-
-		} else if ((*Master_Home_Usroption == 'f')
-				|| (*Master_Home_Usroption == 'F')) {
-			*Master_Home_Usroption = 'F';
-			status = 0;
-
-		} else if ((*Master_Home_Usroption == 'x')
-				|| (*Master_Home_Usroption == 'X')) {
-			*Master_Home_Usroption = 'X';
-			status = 0;
-
-		} else if ((*Master_Home_Usroption == 'v')
-				|| (*Master_Home_Usroption == 'V')) {
-			*Master_Home_Usroption = 'V';
-			status = 0;
-
-		} else if ((*Master_Home_Usroption == 'h')
-				|| (*Master_Home_Usroption == 'H')) {
-			*Master_Home_Usroption = 'H';
-			status = 0;
-
-		} else {
-			PRINTF("INVALID OPTION TRIED!!!\n\n\rTRY AGAIN...\r\n");
-			delay(9);
-			status = 1;
-		}
-		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		DisableIRQ(PRISMA_UART_IRQn);
-	} while (status);
+		PRINTF("\033[35;21H");
 	return 1;
 }
 
@@ -338,8 +238,6 @@ int Edit_config_screen(char *edit_scrn_usroptn) {
 		PRINTF("       2    : PATTERN CONFIGURATION\n\n\n\r");
 		PRINTF("       B : BACK TO HOME\n\r");
 		PRINTF("ENTER YOUR OPTION :");
-		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		EnableIRQ(PRISMA_UART_IRQn);
 		while(!interrupt_flag) {
 		}
 		*edit_scrn_usroptn = uart_read;
@@ -358,8 +256,6 @@ int Edit_config_screen(char *edit_scrn_usroptn) {
 			delay(9);
 			status = 1;
 		}
-		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -374,9 +270,6 @@ int System_config_screen(char *system_config_user_option) {
 		PRINTF("       2    : RATES\n\n\n\r");
 		PRINTF("       B : BACK\n\r");
 		PRINTF("ENTER YOUR OPTION :");
-		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		EnableIRQ(PRISMA_UART_IRQn);
-
 		while(!interrupt_flag) {
 		}
 		*system_config_user_option = uart_read;
@@ -396,8 +289,6 @@ int System_config_screen(char *system_config_user_option) {
 			delay(9);
 			status = 1;
 		}
-		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -426,14 +317,11 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,int *colour_
 		PRINTF("       B : BACK\n\r");
 		PRINTF("       N : HOME\n\n\r");
 		PRINTF("ENTER YOUR OPTION :");
-		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		EnableIRQ(PRISMA_UART_IRQn);
 		while(!interrupt_flag) {
 		}
 		*colour_coding_scheme_useroptn = uart_read;
 		interrupt_flag = 0;
 		PRINTF("%c\r\n", *colour_coding_scheme_useroptn);
-		delay(5);
 		if (*colour_coding_scheme_useroptn == '1') {
 			*colour_coding_scheme_queue_value = 1;
 			colour_coding_scheme_value[0] = 7;
@@ -448,7 +336,7 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,int *colour_
 			//			colour_coding_scheme_value[1] = 4;
 			//			colour_coding_scheme_value[2] = 4;
 			//			PRINTF("SUCCESSFULLY UPDATED");
-			PRINTF("THIS IS SCHEME IS NOT AVAILABLE NOW");
+			PRINTF("THIS SCHEME IS NOT AVAILABLE NOW");
 			delay(9);
 			status = 1;
 		} else if (*colour_coding_scheme_useroptn == '3') {
@@ -457,7 +345,7 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,int *colour_
 			//			colour_coding_scheme_value[1] = 8;
 			//			colour_coding_scheme_value[2] = 8;
 			//			PRINTF("SUCCESSFULLY UPDATED");
-			PRINTF("THIS IS SCHEME IS NOT AVAILABLE NOW");
+			PRINTF("THIS SCHEME IS NOT AVAILABLE NOW");
 			delay(9);
 			status = 1;
 		} else if ((*colour_coding_scheme_useroptn == 'B')
@@ -474,8 +362,6 @@ int Colour_coding_scheme_screen(char *colour_coding_scheme_useroptn,int *colour_
 			delay(9);
 			status = 1;
 		}
-		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 
 	return 1;
@@ -498,8 +384,6 @@ int Rate_configuration_screen(char *rate_config_useroptn, int *refresh_rate,
 		PRINTF("         N : HOME\n\r");
 		PRINTF("SELECT OPTION  :\r\n");
 		PRINTF("\033[9;17H");
-		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		EnableIRQ(PRISMA_UART_IRQn);
 		while(!interrupt_flag) {
 		}
 		option = uart_read;
@@ -631,8 +515,6 @@ int Rate_configuration_screen(char *rate_config_useroptn, int *refresh_rate,
 			delay(9);
 			status = 1;
 		}
-		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -683,8 +565,6 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 		PRINTF("        B : BACK\n\r");
 		PRINTF("        N : HOME\n\n\n\r");
 		PRINTF("SELECT AN OPTION     :");
-		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		EnableIRQ(PRISMA_UART_IRQn);
 		while(!interrupt_flag) {
 		}
 		option = uart_read;
@@ -957,8 +837,6 @@ int Pattern_configuration_screen(int *start_colour, int *end_colour,
 			status = 0;
 			return 0;
 		}
-		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -977,8 +855,6 @@ int ModeSelect_screen(int *mode_usroption,int *mode_option_string_value,char *mo
 		PRINTF("    R      : MANUAL\n\n\n\r");
 		PRINTF("        B : BACK\n\r");
 		PRINTF("SELECT AN OPTION     :  ");
-		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		EnableIRQ(PRISMA_UART_IRQn);
 		while(!interrupt_flag) {
 		}
 		option = uart_read;
@@ -1021,8 +897,6 @@ int ModeSelect_screen(int *mode_usroption,int *mode_option_string_value,char *mo
 			status = 1;
 
 		}
-		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		DisableIRQ(PRISMA_UART_IRQn);
 	} while (status);
 	return 1;
 }
@@ -1046,8 +920,6 @@ int Find_colour_screen(int *find_colour,char *find_usroption) {
 				}
 			}
 		}
-		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		EnableIRQ(PRISMA_UART_IRQn);
 		while(!interrupt_flag) {
 			PRINTF("\033[8;0HPRESS 'T' TO SEARCH");
 			delay(5);
@@ -1139,8 +1011,6 @@ int Find_colour_screen(int *find_colour,char *find_usroption) {
 			PRINTF("INVALID OPTION");
 			strt_success = 1;
 		}
-		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		DisableIRQ(PRISMA_UART_IRQn);
 	} while (strt_success);
 	return 1;
 }
@@ -1180,8 +1050,6 @@ int Help_screen(char *help_scrn_usroption) {
 	do {
 		PRINTF("\e[1;1H\e[2J");
 		PRINTF("WAITING FOR MASTER.......");
-		UART_EnableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		EnableIRQ(PRISMA_UART_IRQn);
 		while(!interrupt_flag) {
 		}
 		*help_scrn_usroption = uart_read;
@@ -1193,8 +1061,6 @@ int Help_screen(char *help_scrn_usroption) {
 			PRINTF("invalid option entered");
 			status = 1;
 		}
-		UART_DisableInterrupts(PRISMA_UART, kUART_RxDataRegFullInterruptEnable | kUART_RxOverrunInterruptEnable);
-		DisableIRQ(PRISMA_UART_IRQn);
 	} while(status);
 	return 1;
 }
