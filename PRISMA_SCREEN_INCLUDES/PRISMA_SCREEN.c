@@ -115,8 +115,8 @@ int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_val
 				}
 			}
 		}
-		PRINTF(" REFRESH RATE                       : %d\n\r",*refresh_rate);
-		PRINTF(" COLOUR CHANGE RATE                 : %d\n\n\r",*colour_change_rate);
+		PRINTF(" REFRESH RATE                       : %d us\n\r",*refresh_rate * 10);
+		PRINTF(" COLOUR CHANGE RATE                 : %d ms\n\n\r",*colour_change_rate * 10);
 		PRINTF("...PATTERN CONFIGURATION...\n\n\r");
 		PRINTF(" START COLOUR                       : ");
 		for (int i = 0; i <= 3; i++) {
@@ -154,7 +154,7 @@ int Master_homescreen(char *Master_Home_Usroption,char *colour_coding_scheme_val
 		PRINTF(" MODE, CYCLE                        : %s, %d\n\n\r",mode_option_string,*repeat_cycle);
 		PRINTF("                **STATUS**\n\n\r");
 		PRINTF(
-				" SLAVE STATUS                       : < CONNECTING/CONNECTED/DISCONNECTED >\n\r");
+				" SLAVE STATUS                       : < DISCONNECTED >\n\r");
 		PRINTF(
 				" MODE OF WORKING                    : < %s >\n\r",Hand_Shake);
 
@@ -224,6 +224,7 @@ int Master_homescreen_update(int *QUEUE_RECEIVE_BUFFER) {
 				}
 			}
 		}
+		PRINTF("\033[25;38H %d",QUEUE_RECEIVE_BUFFER[3]);
 		PRINTF("\033[35;21H");
 	return 1;
 }
@@ -376,7 +377,7 @@ int Rate_configuration_screen(char *rate_config_useroptn, int *refresh_rate,
 		PRINTF("\e[1;1H\e[2J");
 		PRINTF(
 				"********************* FILL THE DETAILS *********************\n\n\r");
-		PRINTF("----- 1. REFRESH RATE             : %d  -----\n\r",
+		PRINTF("----- 1. REFRESH RATE             : %d -----\n\r",
 				*refresh_rate);
 		PRINTF("----- 2. COLOUR CHANGE RATE       : %d -----\n\n\n\r",
 				*colour_change_rate);
@@ -392,6 +393,7 @@ int Rate_configuration_screen(char *rate_config_useroptn, int *refresh_rate,
 			do {
 				int refresh_rate1 = 0;
 				PRINTF("\033[9;0HENTER NEW REFRESH RATE (1 TO 9999)     : ****");
+				PRINTF("\033[13;0H\e[1;31mThe actual value will be REFRESH RATE * 10 us\e[0m");
 				for(int i = 1;i <= 4;i++) {
 					PRINTF("\033[9;%dH",41+i);
 					while(!interrupt_flag) {
@@ -444,6 +446,7 @@ int Rate_configuration_screen(char *rate_config_useroptn, int *refresh_rate,
 			do {
 				int colour_change_rate1 = 0;
 				PRINTF("\033[9;0H ENTER NEW COLOUR CHANGE RATE(1 TO 500) : ***");
+				PRINTF("\033[13;0H\e[1;31mThe actual value will be COLOUR CHANGE RATE * 10 ms\e[0m");
 				for(int i=1;i <= 3;i++) {
 					PRINTF("\033[9;%dH",42+i);
 					while(!interrupt_flag) {
@@ -901,7 +904,7 @@ int ModeSelect_screen(int *mode_usroption,int *mode_option_string_value,char *mo
 	return 1;
 }
 
-int Find_colour_screen(int *find_colour,char *find_usroption) {
+int Find_colour_screen(int *find_colour,int *QUEUE_SEARCH_BUFFER,char *find_usroption) {
 	int strt_success;
 	char option;
 	do {
@@ -922,9 +925,9 @@ int Find_colour_screen(int *find_colour,char *find_usroption) {
 		}
 		while(!interrupt_flag) {
 			PRINTF("\033[8;0HPRESS 'T' TO SEARCH");
-			delay(5);
+			delay(2);
 			PRINTF("\033[8;0H                   ");
-			delay(5);
+			delay(2);
 		}
 		PRINTF("\033[4;0H                                       \n\r");
 		PRINTF("\033[5;0H                                       \n\r");
@@ -994,6 +997,21 @@ int Find_colour_screen(int *find_colour,char *find_usroption) {
 					continue;
 				}
 			}
+			QUEUE_SEARCH_BUFFER[START_RED] = find_colour[0];
+			QUEUE_SEARCH_BUFFER[START_GREEN] = find_colour[1];
+			QUEUE_SEARCH_BUFFER[START_BLUE] = find_colour[2];
+			QUEUE_SEARCH_BUFFER[REFRESH_RATE] = 0;
+			QUEUE_SEARCH_BUFFER[COLOUR_CODING_SCHEME] = 1;
+			QUEUE_SEARCH_BUFFER[END_RED] = 1;
+			QUEUE_SEARCH_BUFFER[END_GREEN] = 1;
+			QUEUE_SEARCH_BUFFER[END_BLUE] = 1;
+			QUEUE_SEARCH_BUFFER[STEP_RED] = 0;
+			QUEUE_SEARCH_BUFFER[STEP_GREEN] = 0;
+			QUEUE_SEARCH_BUFFER[STEP_BLUE] = 0;
+			QUEUE_SEARCH_BUFFER[CHANGE_RATE] = 40;
+			QUEUE_SEARCH_BUFFER[MODE] = 1;
+			QUEUE_SEARCH_BUFFER[CYCLE] = 5;
+
 			PRINTF("\033[14;0HNote : OBSERVE THE LED\n\n\n\r");
 			delay(10);
 			PRINTF("\033[5;9H                            ");
@@ -1049,8 +1067,12 @@ int Help_screen(char *help_scrn_usroption) {
 	int status = 1;
 	do {
 		PRINTF("\e[1;1H\e[2J");
-		PRINTF("WAITING FOR MASTER.......");
-		while(!interrupt_flag) {
+		PRINTF("PRISMA is a Multicolour LED Controller software powered by Digital Core Technologies Pvt. Ltd. It provides options for the user to generate their own LED blinking pattern.");
+		PRINTF("The 'Home' screen includes the current configuration and options to edit, start, stop and pause the pattern.");
+        PRINTF("Default configuration includes a start value of (0,0,0) and an end value of (7,7,3) in the order of Red, Green, Blue. A resolution-the rate in which the colours are incremented- of (1,1,1).");
+		PRINTF("");
+
+	while(!interrupt_flag) {
 		}
 		*help_scrn_usroption = uart_read;
 		interrupt_flag = 0;
